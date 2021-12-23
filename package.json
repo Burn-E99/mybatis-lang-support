@@ -10,6 +10,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onStartupFinished",
 		"onCommand:mybatis-lang-support.helloWorld"
 	],
 	"main": "./dist/extension.js",
