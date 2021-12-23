@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Example">
+	<select id="testSelect1">
+		SELECT
+			*
+		FROM
+			<include refid="Tables.TABLE_ONE_AV"/>
+	</select>
+
+	<select id="testMissingSelect">
+		SELECT
+			*
+		FROM
+			<include refid="Tables.TABLE_THREE_AV"/>
+	</select>
+
+	<delete id="differentTest">
+		DELETE FROM <include refid="Tables.TABLE_TWO_UV"/>
+	</delete>
+</mapper>
