@@ -8,14 +8,52 @@
 			<include refid="Tables.TABLE_ONE_AV"/>
 	</select>
 
-	<select id="testMissingSelect">
+	<select id="testMissingTable">
 		SELECT
 			*
 		FROM
 			<include refid="Tables.TABLE_THREE_AV"/>
 	</select>
 
+	<select id="testMissingNamespace">
+		SELECT
+			*
+		FROM
+			<include refid="Fake.TABLE_ONE_AV"/>
+	</select>
+
 	<delete id="differentTest">
 		DELETE FROM <include refid="Tables.TABLE_TWO_UV"/>
+		WHERE COLNAME1 <> 'test'
+			AND COLNAME2 < 1
+			AND COLNAME3 > 2
+			AND COLNAME4 <= 3
+			AND COLNAME5 >= 4
 	</delete>
+
+	<select id="testDuplicateId">
+		SELECT
+			*
+		FROM
+			<include refid="Tables.TABLE_ONE_AV"/>
+	</select>
+	<select id="testDuplicateId">
+		SELECT
+			*
+		FROM
+			<include refid="Tables.TABLE_ONE_AV"/>
+	</select>
+	<delete id="testDuplicateId">
+		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
+	</delete>
+
+	<delete>
+
+	<include>
+
+	<result>
+
+	</insert>
+
+	</case>
 </mapper>

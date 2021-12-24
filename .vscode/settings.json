@@ -7,5 +7,7 @@
 		"out": true,
 		"dist": true
 	},
-	"typescript.tsc.autoDetect": "off"
+	"typescript.tsc.autoDetect": "off",
+	"eslint.format.enable": true,
+	"eslint.lintTask.enable": true
 }

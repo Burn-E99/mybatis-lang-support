@@ -1,24 +1,29 @@
 {
 	"name": "mybatis-lang-support",
 	"displayName": "mybatis-lang-support",
-	"description": "Adds support for mybatis xml in Java projects, helping alleviate typos.",
-	"version": "0.0.1",
+	"description": "Adds support for mybatis xml in Java projects, helping alleviate typos and other common issues.",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.63.0"
 	},
 	"categories": [
-		"Other"
+		"Programming Languages"
 	],
 	"activationEvents": [
-		"onStartupFinished",
-		"onCommand:mybatis-lang-support.helloWorld"
+		"onStartupFinished"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
-		"commands": [
+		"configuration": [
 			{
-				"command": "mybatis-lang-support.helloWorld",
-				"title": "Hello World"
+				"title": "Mybatis Lang Support",
+				"properties": {
+					"mybatis-lang-support.mapperPath": {
+						"type": "string",
+						"default": "./mappers",
+						"markdownDescription": "Name of the folder holding your mapper.xml files. Start with `./` to make relative to this workspace."
+					}
+				}
 			}
 		]
 	},
@@ -28,10 +33,7 @@
 		"watch": "webpack --watch",
 		"package": "webpack --mode production --devtool hidden-source-map",
 		"compile-tests": "tsc -p . --outDir out",
-		"watch-tests": "tsc -p . -w --outDir out",
-		"pretest": "npm run compile-tests && npm run compile && npm run lint",
-		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
+		"lint": "eslint src --ext ts"
 	},
 	"devDependencies": {
 		"@types/vscode": "^1.63.0",

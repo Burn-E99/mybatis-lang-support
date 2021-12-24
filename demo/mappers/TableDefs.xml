@@ -4,7 +4,8 @@
 	<sql id="SCHEMA_AV">DB_AV.</sql>
 	<sql id="SCHEMA_UV">DB_UV.</sql>
 
-	<sql id="TABLE_ONE_AV"><include refid="Tables.SCHEMA_AV"/>TABLE_ONE</sql>
+	<sql id="TABLE_ONE_AV"><include refid="SCHEMA_AV"/>TABLE_ONE</sql>
+	<sql id="TABLE_ONE_AV"><include refid="SCHEMA_EV"/>TABLE_ONE</sql>
 	<sql id="TABLE_ONE_UV"><include refid="Tables.SCHEMA_UV"/>TABLE_ONE</sql>
 	<sql id="TABLE_TWO_AV"><include refid="Tables.SCHEMA_AV"/>TABLE_TWO</sql>
 	<sql id="TABLE_TWO_UV"><include refid="Tables.SCHEMA_UV"/>TABLE_TWO</sql>
