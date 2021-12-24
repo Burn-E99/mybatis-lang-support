@@ -3,6 +3,11 @@
 	"displayName": "mybatis-lang-support",
 	"description": "Adds support for mybatis xml in Java projects, helping alleviate typos and other common issues.",
 	"version": "0.1.0",
+	"publisher": "ean-milligan",
+	"license": "SEE LICENSE IN <LICENSE file>",
+	"author": {
+    "name": "Ean Milligan"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Burn-E99/mybatis-lang-support.git"
