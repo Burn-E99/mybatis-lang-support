@@ -3,6 +3,10 @@
 	"displayName": "mybatis-lang-support",
 	"description": "Adds support for mybatis xml in Java projects, helping alleviate typos and other common issues.",
 	"version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Burn-E99/mybatis-lang-support.git"
+  },
 	"engines": {
 		"vscode": "^1.63.0"
 	},
