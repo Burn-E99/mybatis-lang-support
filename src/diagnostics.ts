@@ -30,15 +30,22 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 			let currentOffset = 0;
 			while (doc.getText().indexOf(CARET_ISSUE.PROBLEM, currentOffset) >= 0) {
 				const currentIdx = doc.getText().indexOf(CARET_ISSUE.PROBLEM, currentOffset);
-				issues.push({
-					code: CARET_ISSUE.NAME,
-					message: CARET_ISSUE.DESC,
-					range: new vscode.Range(
-						doc.positionAt(currentIdx + CARET_ISSUE.OFFSET),
-						doc.positionAt(currentIdx + CARET_ISSUE.OFFSET + CARET_ISSUE.SIZE)
-					),
-					severity: vscode.DiagnosticSeverity.Error
-				});
+
+				// Get current line
+				const currentLine = doc.lineAt(doc.positionAt(currentIdx).line).text;
+
+				// Make sure the caret issue is not inside a string (such as inside a test param on an if tag)
+				if (currentLine.indexOf('"', currentIdx) === -1 && currentLine.lastIndexOf('"', currentIdx) === -1) {
+					issues.push({
+						code: CARET_ISSUE.NAME,
+						message: CARET_ISSUE.DESC,
+						range: new vscode.Range(
+							doc.positionAt(currentIdx + CARET_ISSUE.OFFSET),
+							doc.positionAt(currentIdx + CARET_ISSUE.OFFSET + CARET_ISSUE.SIZE)
+						),
+						severity: vscode.DiagnosticSeverity.Error
+					});
+				}
 
 				// Shift currentIdx to after what we are marking
 				currentOffset = currentIdx + CARET_ISSUE.OFFSET + CARET_ISSUE.SIZE;
