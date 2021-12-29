@@ -3,5 +3,7 @@
 <mapper namespace="Example2">
 	<delete id="differentTest">
 		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
+		WHERE <include refid="externalInclude1"/>
+		AND <include refid="Example2.externalInclude2"/>
 	</delete>
 </mapper>

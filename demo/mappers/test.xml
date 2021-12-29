@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Example2">
+	<sql id="externalInclude1">
+		COLNAME1 = 1
+	</sql>
+
+	<sql id="externalInclude2">
+		COLNAME2 = 2
+	</sql>
+
 	<delete id="differentTest">
 		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
 			<include refid="Example.testWhereClause"/>
