@@ -36,6 +36,9 @@
 			AND COLNAME3 > 2
 			AND COLNAME4 <= 3
 			AND COLNAME5 >= 4
+			<if test="variable > 10">
+				OR COLNAME6 = 1
+			</if>
 	</delete>
 
 	<select id="testDuplicateId">
