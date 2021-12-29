@@ -276,7 +276,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 					doc.positionAt(doc.getText().indexOf('namespace="') + 11),
 					doc.positionAt(doc.getText().indexOf('namespace="') + 11 + myDetails.name.length)
 				),
-				severity: vscode.DiagnosticSeverity.Error
+				severity: vscode.DiagnosticSeverity.Warning
 			});
 		}
 
