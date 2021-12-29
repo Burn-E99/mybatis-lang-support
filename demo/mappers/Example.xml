@@ -80,4 +80,7 @@
 		<foreach>
 		</foreach>
 	</foreach>
+
+	<resultMap>
+	</resultMap>
 </mapper>
