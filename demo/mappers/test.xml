@@ -3,5 +3,6 @@
 <mapper namespace="Example2">
 	<delete id="differentTest">
 		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
+			<include refid="Example.testWhereClause"/>
 	</delete>
 </mapper>

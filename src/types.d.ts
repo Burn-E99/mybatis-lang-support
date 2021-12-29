@@ -1,3 +1,5 @@
+import type { TextDocument } from 'vscode';
+
 export type MybatisNamespace = {
 	path: string,
 	name: string,
@@ -13,5 +15,6 @@ export type MybatisNamespace = {
 export type MybatisNamespaces = {
 	paths: Array<string>,
 	names: Array<string>,
+	docs: Array<TextDocument>,
 	details: Array<MybatisNamespace>
 }

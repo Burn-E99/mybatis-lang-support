@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Example">
+	<sql id="testWhereClause">
+		WHERE
+			COLNAME1 = 'TEST'
+			AND COLNAME2 LIKE '%HI%'
+	</sql>
+
 	<select id="testSelect1">
 		SELECT
 			*
@@ -20,6 +26,7 @@
 			*
 		FROM
 			<include refid="Fake.TABLE_ONE_AV"/>
+		<include refid="Example.testWhereClause"/>
 	</select>
 
 	<delete id="differentTest">
