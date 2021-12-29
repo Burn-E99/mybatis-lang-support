@@ -39,7 +39,14 @@
 			<if test="variable > 10">
 				OR COLNAME6 = 1
 			</if>
+			<!--
+				These should be ignored
+				OR COLNAME > 1
+				<include refid="Fake.TABLE_ONE_AV"/>
+				</update>
+			-->
 	</delete>
+
 
 	<select id="testDuplicateId">
 		SELECT
