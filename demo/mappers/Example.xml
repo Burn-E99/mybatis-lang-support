@@ -73,4 +73,11 @@
 	</insert>
 
 	</case>
+
+	<foreach>
+		<foreach>
+		</foreach>
+		<foreach>
+		</foreach>
+	</foreach>
 </mapper>
