@@ -17,3 +17,6 @@ Get it direct from the [Extension Marketplace](https://marketplace.visualstudio.
 
 ## Release Notes
 See [CHANGELOG.md](./CHANGELOG.md)
+
+## Problems?
+Please raise a descriptive issue on [this GitHub repo](https://github.com/Burn-E99/mybatis-lang-support/issues) containing examples of the problem you are encountering.  The more clear and desciptive the issue, the more likely it will be investigated and fixed quickly.
