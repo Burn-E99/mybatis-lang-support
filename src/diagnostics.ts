@@ -24,12 +24,22 @@ export const init = async (mapperPath: string, collection: vscode.DiagnosticColl
 export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCollection, mapperPath: string, mybatisNamespaces: MybatisNamespaces) => {
 	if (doc && mapperPath && doc.uri.path.startsWith(mapperPath) && doc.uri.path.toLowerCase().endsWith('.xml')) {
 		const issues: Array<vscode.Diagnostic> = [];
+		let docText = doc.getText();
+
+		// Ignore comments by removing them from the document (in our local docText only)
+		while (docText.indexOf('<!--') >= 0) {
+			const startIdx = docText.indexOf('<!--');
+			const endIdx = docText.indexOf('-->') + 3;
+			
+			// Replace comment with whitespace chars
+			docText = docText.substring(0, startIdx) + new Array(endIdx - startIdx + 1).join(' ') + docText.substring(endIdx);
+		}
 
 		// Make all diagnostic markers for caret issues
 		for (const CARET_ISSUE of CARET_ISSUES) {
 			let currentOffset = 0;
-			while (doc.getText().indexOf(CARET_ISSUE.PROBLEM, currentOffset) >= 0) {
-				const currentIdx = doc.getText().indexOf(CARET_ISSUE.PROBLEM, currentOffset);
+			while (docText.indexOf(CARET_ISSUE.PROBLEM, currentOffset) >= 0) {
+				const currentIdx = docText.indexOf(CARET_ISSUE.PROBLEM, currentOffset);
 
 				// Get current line
 				const currentLine = doc.lineAt(doc.positionAt(currentIdx).line).text;
@@ -54,15 +64,15 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 
 		// Make all diagnostic markers for missing namespaces and references
 		let includeOffset = 0;
-		while (doc.getText().indexOf(REFID_ISSUE.INCLUDE_START, includeOffset) >= 0) {
+		while (docText.indexOf(REFID_ISSUE.INCLUDE_START, includeOffset) >= 0) {
 			// Find refid
-			const includeStartIdx = doc.getText().indexOf(REFID_ISSUE.INCLUDE_START, includeOffset) + REFID_ISSUE.INCLUDE_OFFSET;
-			const includeEndIdx = doc.getText().indexOf(REFID_ISSUE.INCLUDE_END, includeStartIdx);
-			const refidText = doc.getText().substring(includeStartIdx, includeEndIdx);
+			const includeStartIdx = docText.indexOf(REFID_ISSUE.INCLUDE_START, includeOffset) + REFID_ISSUE.INCLUDE_OFFSET;
+			const includeEndIdx = docText.indexOf(REFID_ISSUE.INCLUDE_END, includeStartIdx);
+			const refidText = docText.substring(includeStartIdx, includeEndIdx);
 			// Check if a namespace is provided
 			if (refidText.includes('.')) {
 				// Namespace is provided
-				const [namespace, reference] = doc.getText().substring(includeStartIdx, includeEndIdx).split('.');
+				const [namespace, reference] = docText.substring(includeStartIdx, includeEndIdx).split('.');
 				// Check for issues
 				if (!mybatisNamespaces.names.includes(namespace)) {
 					// Namespace missing
@@ -125,16 +135,16 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		// Make all diagnostic markers for self closing issues
 		for (const tag of PAIR_ISSUES.SELF_CLOSING) {
 			let currentOffset = 0;
-			while (doc.getText().indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
+			while (docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
 				// Get index of current tag and see if there is another tag after this
-				const openIdx = doc.getText().indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
-				const nextTagIdx = doc.getText().indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
+				const openIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
+				const nextTagIdx = docText.indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
 				// Get the closing idx, limited either by where the next tag is or the start of this tag
 				let closeIdx;
 				if (nextTagIdx === -1) {
-					closeIdx = doc.getText().indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
+					closeIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
 				} else {
-					closeIdx = doc.getText().lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
+					closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
 				}
 				if (closeIdx === -1 || closeIdx <= openIdx) {
 					// Tag is missing a closing, add error
@@ -159,10 +169,10 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 			let currentOffset = 0;
 			let lastCloseIdx = 0;
 			// Handle opening without closing
-			while (doc.getText().indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
+			while (docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
 				// Get index of current tag and see if there is another tag after this
-				const openIdx = doc.getText().indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
-				const closeIdx = doc.getText().indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
+				const openIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
+				const closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
 				if (closeIdx === -1) {
 					// Tag is missing a closing, add error
 					issues.push({
@@ -183,9 +193,9 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 
 			// Handle closing without opening
 			if (lastCloseIdx >= currentOffset) {
-				while (doc.getText().indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx) >= 0) {
+				while (docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx) >= 0) {
 					// Get index of current tag and see if there is another tag after this
-					const openIdx = doc.getText().indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx);
+					const openIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx);
 					if (openIdx !== -1) {
 						// Tag is missing a closing, add error
 						issues.push({
@@ -209,17 +219,17 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		for (const tag of PAIR_ISSUES.BOTH_CLOSING) {
 			let currentOffset = 0;
 			let lastCloseIdx = 0;
-			while (doc.getText().indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
+			while (docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
 				// Get index of current tag and see if there is another tag after this
-				const openIdx = doc.getText().indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
-				let closeIdx = doc.getText().indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
+				const openIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
+				let closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
 				if (closeIdx === -1) {
-					const nextTagIdx = doc.getText().indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
+					const nextTagIdx = docText.indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
 					// Get the closing idx, limited either by where the next tag is or the start of this tag
 					if (nextTagIdx === -1) {
-						closeIdx = doc.getText().indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
+						closeIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
 					} else {
-						closeIdx = doc.getText().lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
+						closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
 					}
 				}
 				if (closeIdx === -1 || closeIdx <= openIdx) {
@@ -242,9 +252,9 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 
 			// Handle closing without opening
 			if (lastCloseIdx >= currentOffset) {
-				while (doc.getText().indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx) >= 0) {
+				while (docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx) >= 0) {
 					// Get index of current tag and see if there is another tag after this
-					const openIdx = doc.getText().indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx);
+					const openIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx);
 					if (openIdx !== -1) {
 						// Tag is missing a closing, add error
 						issues.push({
@@ -273,8 +283,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				code: NAMESPACE_ISSUE.NAME,
 				message: NAMESPACE_ISSUE.DESC(myDetails.name),
 				range: new vscode.Range(
-					doc.positionAt(doc.getText().indexOf('namespace="') + 11),
-					doc.positionAt(doc.getText().indexOf('namespace="') + 11 + myDetails.name.length)
+					doc.positionAt(docText.indexOf('namespace="') + 11),
+					doc.positionAt(docText.indexOf('namespace="') + 11 + myDetails.name.length)
 				),
 				severity: vscode.DiagnosticSeverity.Warning
 			});
@@ -297,8 +307,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				code: DUPLICATE_ID_ISSUE.NAME,
 				message: DUPLICATE_ID_ISSUE.WARN(duplicateId),
 				range: new vscode.Range(
-					doc.positionAt(doc.getText().indexOf(`id="${duplicateId}"`) + 4),
-					doc.positionAt(doc.getText().indexOf(`id="${duplicateId}"`) + 4 + duplicateId.length)
+					doc.positionAt(docText.indexOf(`id="${duplicateId}"`) + 4),
+					doc.positionAt(docText.indexOf(`id="${duplicateId}"`) + 4 + duplicateId.length)
 				),
 				severity: vscode.DiagnosticSeverity.Warning
 			});
@@ -312,8 +322,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 						code: DUPLICATE_ID_ISSUE.NAME,
 						message: DUPLICATE_ID_ISSUE.DESC(duplicateId),
 						range: new vscode.Range(
-							doc.positionAt(doc.getText().indexOf(`id="${duplicateId}"`, doc.getText().indexOf(PAIR_ISSUES.OPEN(type))) + 4),
-							doc.positionAt(doc.getText().indexOf(`id="${duplicateId}"`, doc.getText().indexOf(PAIR_ISSUES.OPEN(type))) + 4 + duplicateId.length)
+							doc.positionAt(docText.indexOf(`id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 4),
+							doc.positionAt(docText.indexOf(`id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 4 + duplicateId.length)
 						),
 						severity: vscode.DiagnosticSeverity.Error
 					});

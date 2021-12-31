@@ -53,6 +53,12 @@
 			*
 		FROM
 			<include refid="Tables.TABLE_ONE_AV"/>
+			<!--
+				These should be ignored
+				WHERE COLNAME > 1
+				<include refid="Fake.TABLE_ONE_AV"/>
+				</update>
+			-->
 	</select>
 	<select id="testDuplicateId">
 		SELECT
