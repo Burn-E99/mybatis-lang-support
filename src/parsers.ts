@@ -81,10 +81,10 @@ export const readMapperPath = async (mapperPath: string): Promise<Array<MybatisN
 
 	// Check every item in the current folder
 	for (const item of currentFolder) {
-		const currentPath = `${mapperPath}/${item[0]}`;
+		const currentPath = `${mapperPath}${item[0]}`;
 		if (item[1] === 2) {
 			// We found a folder, recusively read deeper
-			spaces.push(...(await readMapperPath(currentPath)));
+			spaces.push(...(await readMapperPath(`${currentPath}/`)));
 		} else if (item[1] === 1 && item[0].toLowerCase().endsWith('.xml')) {
 			// We found a xml file, parse the namespace and refids out
 			spaces.push(parseNamespaces(await vscode.workspace.openTextDocument(currentPath)));

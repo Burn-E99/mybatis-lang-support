@@ -11,11 +11,18 @@ export class NamespaceDefinitionsProvider implements vscode.DefinitionProvider {
 			if (doc.getText(beforeHoveredWordPos).toLowerCase() === 'refid') {
 				const hoveredRefId = doc.getText(hoveredWordPos).split('.');
 				// Define namespace and Id we will be looking for 
-				const hoveredNamespace = hoveredRefId[1] ? hoveredRefId[0] : '';
+				let hoveredNamespace = hoveredRefId[1] ? hoveredRefId[0] : '';
 				const hoveredId = hoveredRefId[1] || hoveredRefId[0];
 
+				if (!hoveredNamespace) {
+					// Get namespace name
+					const nameStartIdx = doc.getText().indexOf(' namespace="') + 12;
+					const nameEndIdx = doc.getText().indexOf('"', nameStartIdx);
+					hoveredNamespace = doc.getText().substring(nameStartIdx, nameEndIdx);
+				}
+
 				// Get code to display
-				const link = lookupCodeBehindRefId(hoveredNamespace, hoveredId, doc);
+				const link = lookupCodeBehindRefId(hoveredNamespace, hoveredId);
 
 				// Show Definition
 				return link ? [link] : null;

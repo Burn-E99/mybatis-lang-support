@@ -90,25 +90,27 @@ export function deactivate() {
 }
 
 // Get code behind a specific refId, needs to be here to access our "globals"
-export function lookupCodeBehindRefId(namespace: string, refId: string, self: vscode.TextDocument): (vscode.DefinitionLink | undefined) {
+export function lookupCodeBehindRefId(namespace: string, refId: string): (vscode.DefinitionLink | undefined) {
 	// Get correct doc to work wiht
-	const mapperIdx = mybatisNamespaces.names.indexOf(namespace);
-	const doc = namespace ? mybatisNamespaces.docs[mapperIdx] : self;
+	const docs = mybatisNamespaces.docs.filter((_doc: vscode.TextDocument, idx: number) => (mybatisNamespaces.names[idx] === namespace));
 	
 	const formattedRefId = ` id="${refId}"`;
-	if (doc.getText().includes(formattedRefId)) {
-		const refIdIdx = doc.getText().indexOf(formattedRefId);
-		// Find start and end of code block
-		const codeStartIdx = doc.getText().lastIndexOf('<sql', refIdIdx);
-		const codeEndIdx = doc.getText().indexOf('</sql>', refIdIdx) + 6;
 
-		// If we found a full code block, return it
-		if (codeStartIdx !== -1 && codeEndIdx !== -1) {
-			return {
-				targetUri: doc.uri,
-				targetRange: new vscode.Range(doc.positionAt(codeStartIdx), doc.positionAt(codeEndIdx)),
-				targetSelectionRange: new vscode.Range(doc.positionAt(codeStartIdx), doc.positionAt(codeEndIdx))
-			};
+	for (const doc of docs) {
+		if (doc.getText().includes(formattedRefId)) {
+			const refIdIdx = doc.getText().indexOf(formattedRefId);
+			// Find start and end of code block
+			const codeStartIdx = doc.getText().lastIndexOf('<sql', refIdIdx);
+			const codeEndIdx = doc.getText().indexOf('</sql>', refIdIdx) + 6;
+
+			// If we found a full code block, return it
+			if (codeStartIdx !== -1 && codeEndIdx !== -1) {
+				return {
+					targetUri: doc.uri,
+					targetRange: new vscode.Range(doc.positionAt(codeStartIdx), doc.positionAt(codeEndIdx)),
+					targetSelectionRange: new vscode.Range(doc.positionAt(codeStartIdx), doc.positionAt(codeEndIdx))
+				};
+			}
 		}
 	}
 

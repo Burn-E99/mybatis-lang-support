@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as clone from 'clone';
 import { MybatisNamespace, MybatisNamespaces } from './types';
 import { CARET_ISSUES, REFID_ISSUE, PAIR_ISSUES, NAMESPACE_ISSUE, DUPLICATE_ID_ISSUE } from './issues';
 
@@ -9,10 +10,10 @@ export const init = async (mapperPath: string, collection: vscode.DiagnosticColl
 
 	// Check every item in the current folder
 	for (const item of currentFolder) {
-		const currentPath = `${mapperPath}/${item[0]}`;
+		const currentPath = `${mapperPath}${item[0]}`;
 		if (item[1] === 2) {
 			// We found a folder, recusively read deeper
-			await init(currentPath, collection, mybatisNamespaces);
+			await init(`${currentPath}/`, collection, mybatisNamespaces);
 		} else if (item[1] === 1 && item[0].toLowerCase().endsWith('.xml')) {
 			// We found a xml file, parse the namespace and refids out
 			update(await vscode.workspace.openTextDocument(currentPath), collection, mapperPath, mybatisNamespaces);
@@ -86,7 +87,24 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 						severity: vscode.DiagnosticSeverity.Error
 					});
 				} else {
-					const mybatisNamespace: MybatisNamespace = mybatisNamespaces.details.filter((mybatisNamespace: MybatisNamespace) => mybatisNamespace.name === namespace)[0];
+					const mybatisNamespace: MybatisNamespace = clone(mybatisNamespaces.details.filter((mybatisNamespace: MybatisNamespace) => mybatisNamespace.name === namespace)[0]);
+
+					// Merge namespaces of same name into mybatisNamespace
+					let detailsOffset = 0;
+					while (mybatisNamespaces.names.includes(mybatisNamespace.name, detailsOffset)) {
+						const currentDetailsIdx = mybatisNamespaces.names.indexOf(mybatisNamespace.name, detailsOffset);
+						if (mybatisNamespaces.paths[currentDetailsIdx] !== mybatisNamespace.path) {
+							mybatisNamespace.ids.sql.push(...mybatisNamespaces.details[currentDetailsIdx].ids.sql);
+							mybatisNamespace.ids.delete.push(...mybatisNamespaces.details[currentDetailsIdx].ids.delete);
+							mybatisNamespace.ids.select.push(...mybatisNamespaces.details[currentDetailsIdx].ids.select);
+							mybatisNamespace.ids.insert.push(...mybatisNamespaces.details[currentDetailsIdx].ids.insert);
+							mybatisNamespace.ids.update.push(...mybatisNamespaces.details[currentDetailsIdx].ids.update);
+						}
+
+						// Shift current offset to not get in infinite loop
+						detailsOffset = currentDetailsIdx + 1;
+					}
+
 					if (!mybatisNamespace.ids.sql.includes(reference)) {
 						// Reference missing
 						issues.push({
@@ -102,7 +120,24 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				}
 			} else {
 				// No namespace provided, check if refid exists on this file's namespace
-				const mybatisNamespace: MybatisNamespace = mybatisNamespaces.details.filter((mybatisNamespace: MybatisNamespace) => mybatisNamespace.path === doc.uri.path)[0];
+				const mybatisNamespace: MybatisNamespace = clone(mybatisNamespaces.details.filter((mybatisNamespace: MybatisNamespace) => mybatisNamespace.path === doc.uri.path)[0]);
+
+				// Merge namespaces of same name into mybatisNamespace
+				let detailsOffset = 0;
+				while (mybatisNamespaces.names.includes(mybatisNamespace.name, detailsOffset)) {
+					const currentDetailsIdx = mybatisNamespaces.names.indexOf(mybatisNamespace.name, detailsOffset);
+					if (mybatisNamespaces.paths[currentDetailsIdx] !== mybatisNamespace.path) {
+						mybatisNamespace.ids.sql.push(...mybatisNamespaces.details[currentDetailsIdx].ids.sql);
+						mybatisNamespace.ids.delete.push(...mybatisNamespaces.details[currentDetailsIdx].ids.delete);
+						mybatisNamespace.ids.select.push(...mybatisNamespaces.details[currentDetailsIdx].ids.select);
+						mybatisNamespace.ids.insert.push(...mybatisNamespaces.details[currentDetailsIdx].ids.insert);
+						mybatisNamespace.ids.update.push(...mybatisNamespaces.details[currentDetailsIdx].ids.update);
+					}
+
+					// Shift current offset to not get in infinite loop
+					detailsOffset = currentDetailsIdx + 1;
+				}
+
 				if (mybatisNamespace.ids.sql.includes(refidText)) {
 					// Reference exists, give warning
 					issues.push({
@@ -275,7 +310,24 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		}
 
 		// Make all diagnostic markers for duplicate namespaces
-		const myDetails: MybatisNamespace = mybatisNamespaces.details.filter((mybatisNamespace: MybatisNamespace) => mybatisNamespace.path === doc.uri.path)[0];
+		const myDetails: MybatisNamespace = clone(mybatisNamespaces.details.filter((mybatisNamespace: MybatisNamespace) => mybatisNamespace.path === doc.uri.path)[0]);
+
+		// Merge namespaces of same name into myDetails
+		let detailsOffset = 0;
+		while (mybatisNamespaces.names.includes(myDetails.name, detailsOffset)) {
+			const currentDetailsIdx = mybatisNamespaces.names.indexOf(myDetails.name, detailsOffset);
+			if (mybatisNamespaces.paths[currentDetailsIdx] !== myDetails.path) {
+				myDetails.ids.sql.push(...mybatisNamespaces.details[currentDetailsIdx].ids.sql);
+				myDetails.ids.delete.push(...mybatisNamespaces.details[currentDetailsIdx].ids.delete);
+				myDetails.ids.select.push(...mybatisNamespaces.details[currentDetailsIdx].ids.select);
+				myDetails.ids.insert.push(...mybatisNamespaces.details[currentDetailsIdx].ids.insert);
+				myDetails.ids.update.push(...mybatisNamespaces.details[currentDetailsIdx].ids.update);
+			}
+
+			// Shift current offset to not get in infinite loop
+			detailsOffset = currentDetailsIdx + 1;
+		}
+
 		const duplicateNamespaces = mybatisNamespaces.names.filter((name: string, idx: number) => mybatisNamespaces.names.indexOf(name) !== idx);
 		if (duplicateNamespaces.includes(myDetails.name)) {
 			// Our namespace is duplicated, show error
@@ -307,8 +359,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				code: DUPLICATE_ID_ISSUE.NAME,
 				message: DUPLICATE_ID_ISSUE.WARN(duplicateId),
 				range: new vscode.Range(
-					doc.positionAt(docText.indexOf(`id="${duplicateId}"`) + 4),
-					doc.positionAt(docText.indexOf(`id="${duplicateId}"`) + 4 + duplicateId.length)
+					doc.positionAt(docText.indexOf(` id="${duplicateId}"`) + 5),
+					doc.positionAt(docText.indexOf(` id="${duplicateId}"`) + 5 + duplicateId.length)
 				),
 				severity: vscode.DiagnosticSeverity.Warning
 			});
@@ -322,8 +374,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 						code: DUPLICATE_ID_ISSUE.NAME,
 						message: DUPLICATE_ID_ISSUE.DESC(duplicateId),
 						range: new vscode.Range(
-							doc.positionAt(docText.indexOf(`id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 4),
-							doc.positionAt(docText.indexOf(`id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 4 + duplicateId.length)
+							doc.positionAt(docText.indexOf(` id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5),
+							doc.positionAt(docText.indexOf(` id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5 + duplicateId.length)
 						),
 						severity: vscode.DiagnosticSeverity.Error
 					});
