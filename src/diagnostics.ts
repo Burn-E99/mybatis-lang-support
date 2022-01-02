@@ -3,6 +3,8 @@ import * as clone from 'clone';
 import { MybatisNamespace, MybatisNamespaces } from './types';
 import { CARET_ISSUES, REFID_ISSUE, PAIR_ISSUES, NAMESPACE_ISSUE, DUPLICATE_ID_ISSUE } from './issues';
 
+const wordEndRegex = /([\s\t\r\n>])/;
+
 // Initialize every mapper file with proper diagnostic details
 export const init = async (mapperPath: string, collection: vscode.DiagnosticCollection, mybatisNamespaces: MybatisNamespaces) => {
 	// Get items in current folder (starts as mapperPath, but recursively reads deeper)
@@ -181,7 +183,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				} else {
 					closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
 				}
-				if (closeIdx === -1 || closeIdx <= openIdx) {
+				if ((closeIdx === -1 || closeIdx <= openIdx) && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
 					// Tag is missing a closing, add error
 					issues.push({
 						code: PAIR_ISSUES.NAME(tag),
@@ -208,7 +210,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				// Get index of current tag and see if there is another tag after this
 				const openIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
 				const closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
-				if (closeIdx === -1) {
+				if (closeIdx === -1 && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
 					// Tag is missing a closing, add error
 					issues.push({
 						code: PAIR_ISSUES.NAME(tag),
@@ -231,8 +233,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				while (docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx) >= 0) {
 					// Get index of current tag and see if there is another tag after this
 					const openIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx);
-					if (openIdx !== -1) {
-						// Tag is missing a closing, add error
+					if (openIdx !== -1 && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.CLOSE_OFFSET])) {
+						// Tag is missing a opening, add error
 						issues.push({
 							code: PAIR_ISSUES.NAME(tag),
 							message: PAIR_ISSUES.EXTRA_DESC,
@@ -267,7 +269,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 						closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
 					}
 				}
-				if (closeIdx === -1 || closeIdx <= openIdx) {
+				if ((closeIdx === -1 || closeIdx <= openIdx) && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
 					// Tag is missing a closing, add error
 					issues.push({
 						code: PAIR_ISSUES.NAME(tag),
@@ -290,8 +292,8 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				while (docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx) >= 0) {
 					// Get index of current tag and see if there is another tag after this
 					const openIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), lastCloseIdx);
-					if (openIdx !== -1) {
-						// Tag is missing a closing, add error
+					if (openIdx !== -1 && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.CLOSE_OFFSET])) {
+						// Tag is missing a opening, add error
 						issues.push({
 							code: PAIR_ISSUES.NAME(tag),
 							message: PAIR_ISSUES.EXTRA_DESC,
@@ -328,6 +330,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 			detailsOffset = currentDetailsIdx + 1;
 		}
 
+		// Get list of duplicate namespaces
 		const duplicateNamespaces = mybatisNamespaces.names.filter((name: string, idx: number) => mybatisNamespaces.names.indexOf(name) !== idx);
 		if (duplicateNamespaces.includes(myDetails.name) && myDetails.name !== 'no_namespace') {
 			// Our namespace is duplicated, show error

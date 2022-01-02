@@ -62,14 +62,14 @@ export const REFID_ISSUE = {
 // Any issues surrounding unclosed xml tags
 export const PAIR_ISSUES = {
 	SELF_CLOSING: [
-		'result', 'id', 'idArg', 'arg', 'property', 'cache-ref', 'bind', 'typeAlias', 'setting', 'package', 'typeHandler'
+		'result', 'id', 'idArg', 'arg', 'cache-ref', 'bind', 'typeAlias', 'setting', 'package', 'typeHandler'
 	],
 	NORM_CLOSING: [
 		'select', 'delete', 'insert', 'update', 'selectKey', 'sql', 'resultMap', 'typeAliases', 'constructor', 'discriminator', 'if', 'foreach', 'choose', 'when', 'otherwise', 'where', 'trim', 'set',
-		'settings', 'properties', 'dataSource', 'typeHandlers', 'objectFactory', 'plugins', 'plugin', 'environments', 'environment', 'mappers'
+		'settings', 'dataSource', 'typeHandlers', 'objectFactory', 'plugins', 'plugin', 'environments', 'environment', 'mappers'
 	],
 	BOTH_CLOSING: [
-		'association', 'collection', 'include', 'case', 'cache', 'databaseIdProvider', 'mapper', 'transactionManager'
+		'association', 'collection', 'include', 'case', 'cache', 'databaseIdProvider', 'mapper', 'transactionManager', 'property', 'properties', 'constructor-arg'
 	],
 	OPEN: (tag: string) => `<${tag}`,
 	NORM_CLOSE: (tag: string) => `</${tag}>`,
