@@ -126,6 +126,7 @@ export function lookupCodeBehindRefId(namespace: string, refId: string): (vscode
 	return;
 }
 
+// Gets the namespace for the provided doc
 export function getNamespaceFromDoc(doc: vscode.TextDocument): string {
 	return mybatisNamespaces.names[mybatisNamespaces.paths.indexOf(doc.uri.path)];
 }
