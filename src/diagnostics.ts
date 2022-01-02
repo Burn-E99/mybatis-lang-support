@@ -329,7 +329,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		}
 
 		const duplicateNamespaces = mybatisNamespaces.names.filter((name: string, idx: number) => mybatisNamespaces.names.indexOf(name) !== idx);
-		if (duplicateNamespaces.includes(myDetails.name)) {
+		if (duplicateNamespaces.includes(myDetails.name) && myDetails.name !== 'no_namespace') {
 			// Our namespace is duplicated, show error
 			issues.push({
 				code: NAMESPACE_ISSUE.NAME,

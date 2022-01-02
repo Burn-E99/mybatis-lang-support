@@ -5,7 +5,7 @@ import { MybatisNamespace } from './types';
 const parseNamespaces = (doc: vscode.TextDocument): MybatisNamespace => {
 	const names: MybatisNamespace = {
 		path: doc.uri.path,
-		name: "no_namespace",
+		name: 'no_namespace',
 		ids: {
 			sql: [],
 			select: [],
