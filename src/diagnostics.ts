@@ -525,7 +525,7 @@ export class FixMissingNamespaces implements vscode.CodeActionProvider {
 		const fix = new vscode.CodeAction(`Prepend ${namespace} to this refid`, vscode.CodeActionKind.QuickFix);
 		fix.edit = new vscode.WorkspaceEdit();
 		// Do the fix
-		fix.edit.replace(doc.uri, new vscode.Range(range.start, range.end), replaceStr);
+		fix.edit.replace(doc.uri, range, replaceStr);
 		return fix;
 	}
 }
