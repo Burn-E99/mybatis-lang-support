@@ -34,7 +34,7 @@ export const getMapperPath = async (showSaved: boolean): Promise<string> => {
 	catch (e) {
 		// Path didn't exist, error 
 		vscode.window.showErrorMessage('Invalid path for Mapper Path.');
-		return "";
+		return '';
 	}
 };
 
