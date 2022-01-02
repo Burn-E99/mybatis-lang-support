@@ -2,8 +2,8 @@
 Mybatis Lang Support adds useful error checking to Mybatis mapper XML files, helping alleviate typos and other common issues.
 
 ## Features
-* Verifies that all `<` and `>` characters are properly encoded
-* Verifies that all references exist
+* Verifies that all `<` and `>` characters are properly encoded, and provides quickfixes when they are not properly encoded
+* Verifies that all references exist with valid namespaces, and provides quickfixes when a namespace is missing from the reference
 * Verifies that ids are not duplicated
 * Verifies that all tags are properly closed
 * Provides quick links on `<include refid` tags to quickly jump between the usage and definition
