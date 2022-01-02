@@ -2,17 +2,17 @@
 	"name": "mybatis-lang-support",
 	"displayName": "mybatis-lang-support",
 	"description": "Adds support for mybatis xml in Java projects, helping alleviate typos and other common issues.",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"publisher": "ean-milligan",
 	"license": "MPL-2.0 License",
 	"icon": "icon.png",
 	"author": {
-    "name": "Ean Milligan"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Burn-E99/mybatis-lang-support.git"
-  },
+		"name": "Ean Milligan"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Burn-E99/mybatis-lang-support.git"
+	},
 	"engines": {
 		"vscode": "^1.63.0"
 	},
