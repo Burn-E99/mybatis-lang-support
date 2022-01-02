@@ -1,0 +1,5 @@
+<sqlMap namespace="test">
+	<sql id="testing">
+		COLNAME1 = 1
+	</sql>
+</sqlMap>

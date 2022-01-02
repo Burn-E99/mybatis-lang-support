@@ -32,6 +32,15 @@
 						"type": "string",
 						"default": "./mappers",
 						"markdownDescription": "Name of the folder holding your mapper.xml files. Start with `./` to make relative to this workspace."
+					},
+					"mybatis-lang-support.mapperTag": {
+						"type": "string",
+						"enum": [
+							"mapper",
+							"sqlMap"
+						],
+						"default": "mapper",
+						"markdownDescription": "Name of the tag that defines the mappers."
 					}
 				}
 			}

@@ -11,6 +11,7 @@ Mybatis Lang Support adds useful error checking to Mybatis mapper XML files, hel
 
 ## Extension Settings
 * `mybatis-lang-support.mapperPath`: Name of the folder holding your mapper.xml files. Start with `./` to make relative to this workspace.
+* `mybatis-lang-support.mapperTag`: Name of the tag that defines the mappers.
 
 ## Installation
 Get it direct from the [Extension Marketplace](https://marketplace.visualstudio.com/items?itemName=ean-milligan.mybatis-lang-support).

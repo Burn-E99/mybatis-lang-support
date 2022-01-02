@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
 // mapperPath getter
-export const getMapperPath = async (showSaved: boolean) => {
-	let mapperPath: string = vscode.workspace.getConfiguration('mybatis-lang-support').get('mapperPath') || "";
+export const getMapperPath = async (showSaved: boolean): Promise<string> => {
+	let mapperPath: string = vscode.workspace.getConfiguration('mybatis-lang-support').get('mapperPath') || '';
 
 	// Make slash direction normal
 	mapperPath = mapperPath.replace(/\\/g, '/');
@@ -36,4 +36,9 @@ export const getMapperPath = async (showSaved: boolean) => {
 		vscode.window.showErrorMessage('Invalid path for Mapper Path.');
 		return "";
 	}
+};
+
+// mapperTag getter
+export const getMapperTag = (): string => {
+	return vscode.workspace.getConfiguration('mybatis-lang-support').get('mapperTag') || 'mapper';
 };

@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { MybatisNamespace } from './types';
 
 // Parses the namespace and ids out of the given xml file
-const parseNamespaces = (doc: vscode.TextDocument): MybatisNamespace => {
+const parseNamespaces = (doc: vscode.TextDocument, mapperTag: string): MybatisNamespace => {
 	const names: MybatisNamespace = {
 		path: doc.uri.path,
 		name: 'no_namespace',
@@ -16,8 +16,8 @@ const parseNamespaces = (doc: vscode.TextDocument): MybatisNamespace => {
 	};
 
 	// Get file contents we care about
-	const startPos = doc.positionAt(doc.getText().indexOf('<mapper '));
-	const endIdx = doc.getText().indexOf('</mapper>');
+	const startPos = doc.positionAt(doc.getText().indexOf(`<${mapperTag} `));
+	const endIdx = doc.getText().indexOf(`</${mapperTag}>`);
 	if (endIdx === -1) {
 		return names;
 	}
@@ -73,7 +73,7 @@ const parseNamespaces = (doc: vscode.TextDocument): MybatisNamespace => {
 };
 
 // Read all xml files in the mapperPath
-export const readMapperPath = async (mapperPath: string): Promise<Array<MybatisNamespace>> => {
+export const readMapperPath = async (mapperPath: string, mapperTag: string): Promise<Array<MybatisNamespace>> => {
 	const spaces: Array<MybatisNamespace> = [];
 
 	// Get items in current folder (starts as mapperPath, but recursively reads deeper)
@@ -84,10 +84,10 @@ export const readMapperPath = async (mapperPath: string): Promise<Array<MybatisN
 		const currentPath = `${mapperPath}${item[0]}`;
 		if (item[1] === 2) {
 			// We found a folder, recusively read deeper
-			spaces.push(...(await readMapperPath(`${currentPath}/`)));
+			spaces.push(...(await readMapperPath(`${currentPath}/`, mapperTag)));
 		} else if (item[1] === 1 && item[0].toLowerCase().endsWith('.xml')) {
 			// We found a xml file, parse the namespace and refids out
-			spaces.push(parseNamespaces(await vscode.workspace.openTextDocument(currentPath)));
+			spaces.push(parseNamespaces(await vscode.workspace.openTextDocument(currentPath), mapperTag));
 		}
 	}
 

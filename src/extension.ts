@@ -7,6 +7,7 @@ import * as utils from './utils';
 
 // Init "global" vars
 let mapperPath: string;
+let mapperTag: string;
 const mybatisNamespaces: MybatisNamespaces = {
 	paths: [],
 	names: [],
@@ -15,10 +16,11 @@ const mybatisNamespaces: MybatisNamespaces = {
 };
 
 export async function activate(context: vscode.ExtensionContext) {
-	// Initialize mapperPath
+	// Initialize mapperPath and mapperTag
 	mapperPath = await utils.getMapperPath(false);
+	mapperTag = await utils.getMapperTag();
 	// Initialize mapperSpaces
-	const mapperSpaces = await parser.readMapperPath(mapperPath);
+	const mapperSpaces = await parser.readMapperPath(mapperPath, mapperTag);
 	// Create collection for setting error markings in files
 	const collection = vscode.languages.createDiagnosticCollection('mybatis-lang-support');
 
@@ -33,6 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Set settings watcher up
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async () => {
 		mapperPath = await utils.getMapperPath(true);
+		mapperTag = await utils.getMapperTag();
 	}));
 
 	// Scan initial document on open
@@ -53,7 +56,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			// Updates namespaces if this is a file we care about
 			if (doc.uri.path.startsWith(mapperPath)) {
 				// Replace current mapperSpaces with new ones to account for users renaming files
-				const newMapperSpaces = await parser.readMapperPath(mapperPath);
+				const newMapperSpaces = await parser.readMapperPath(mapperPath, mapperTag);
 				mybatisNamespaces.names = [];
 				mybatisNamespaces.paths = [];
 				mybatisNamespaces.docs = [];

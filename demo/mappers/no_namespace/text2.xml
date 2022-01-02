@@ -1,0 +1,7 @@
+<sqlMap namespace="test2">
+	<select id="asdf">
+		SELECT * FROM TABLE_ONE
+		<!-- this should be erroring out when mapperTag is set to mapper -->
+		WHERE <include refid="test.testing"/>
+	</select>
+</sqlMap>
