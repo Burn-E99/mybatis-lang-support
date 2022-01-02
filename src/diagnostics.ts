@@ -349,7 +349,6 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 
 							// Update the closeIdx
 							closeIdx = workingCloseIdx;
-							console.log(tag, closeIdx)
 						}
 					}
 
