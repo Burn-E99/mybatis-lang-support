@@ -66,7 +66,7 @@ export const PAIR_ISSUES = {
 	],
 	NORM_CLOSING: [
 		'select', 'delete', 'insert', 'update', 'selectKey', 'sql', 'resultMap', 'typeAliases', 'constructor', 'discriminator', 'if', 'foreach', 'choose', 'when', 'otherwise', 'where', 'trim', 'set',
-		'settings', 'dataSource', 'typeHandlers', 'objectFactory', 'plugins', 'plugin', 'environments', 'environment', 'mappers'
+		'settings', 'dataSource', 'typeHandlers', 'objectFactory', 'plugins', 'plugin', 'environments', 'environment', 'mappers', 'sqlMap'
 	],
 	BOTH_CLOSING: [
 		'association', 'collection', 'include', 'case', 'cache', 'databaseIdProvider', 'mapper', 'transactionManager', 'property', 'properties', 'constructor-arg'
