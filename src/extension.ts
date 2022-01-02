@@ -76,9 +76,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	// Provide quickfixes
+	// Provide quickfixes for caret issues
 	context.subscriptions.push(vscode.languages.registerCodeActionsProvider('xml', new diagnostics.FixCarets(), {
 		providedCodeActionKinds: diagnostics.FixCarets.providedCodeActionKinds
+	}));
+
+	// Provide quickfixes for missing namespaces
+	context.subscriptions.push(vscode.languages.registerCodeActionsProvider('xml', new diagnostics.FixMissingNamespaces(), {
+		providedCodeActionKinds: diagnostics.FixMissingNamespaces.providedCodeActionKinds
 	}));
 
 	// Provide definition links for namespaces
@@ -119,4 +124,8 @@ export function lookupCodeBehindRefId(namespace: string, refId: string): (vscode
 
 	// No code found, return nothing
 	return;
+}
+
+export function getNamespaceFromDoc(doc: vscode.TextDocument): string {
+	return mybatisNamespaces.names[mybatisNamespaces.paths.indexOf(doc.uri.path)];
 }

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as clone from 'clone';
 import { MybatisNamespace, MybatisNamespaces } from './types';
 import { CARET_ISSUES, REFID_ISSUE, PAIR_ISSUES, NAMESPACE_ISSUE, DUPLICATE_ID_ISSUE } from './issues';
+import { getNamespaceFromDoc } from './extension';
 
 const wordEndRegex = /([\s\t\r\n>])/;
 
@@ -500,6 +501,31 @@ export class FixCarets implements vscode.CodeActionProvider {
 		fix.edit = new vscode.WorkspaceEdit();
 		// Do the fix
 		fix.edit.replace(doc.uri, new vscode.Range(range.start, range.start.translate(0, DIAG.SIZE)), DIAG.FIX);
+		return fix;
+	}
+}
+
+// Quick fixes for missing namespace issues
+export class FixMissingNamespaces implements vscode.CodeActionProvider {
+	public static readonly providedCodeActionKinds = [
+		vscode.CodeActionKind.QuickFix
+	];
+
+	public provideCodeActions(doc: vscode.TextDocument, range: vscode.Range | vscode.Selection, context: vscode.CodeActionContext): vscode.CodeAction[] {
+		// Map correct fix to correct issue
+		return context.diagnostics
+			.filter(diagnostic => REFID_ISSUE.NO_NAMESPACE_NAME === diagnostic.code)
+			.map(() => this.createCommandCodeAction(doc, range));
+	}
+
+	private createCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range): vscode.CodeAction {
+		const namespace = getNamespaceFromDoc(doc);
+		const replaceStr = `${namespace}.${doc.getText(range)}`;
+		// Set up the fix
+		const fix = new vscode.CodeAction(`Prepend ${namespace} to this refid`, vscode.CodeActionKind.QuickFix);
+		fix.edit = new vscode.WorkspaceEdit();
+		// Do the fix
+		fix.edit.replace(doc.uri, new vscode.Range(range.start, range.end), replaceStr);
 		return fix;
 	}
 }
