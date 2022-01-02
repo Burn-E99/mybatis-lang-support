@@ -70,6 +70,7 @@
 		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
 	</delete>
 
+	<!-- the following should have errors -->
 	<delete>
 
 	<include>
@@ -80,6 +81,7 @@
 
 	</case>
 
+	<!-- the following should not have errors -->
 	<foreach>
 		<foreach>
 		</foreach>
