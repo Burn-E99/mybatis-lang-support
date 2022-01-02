@@ -209,23 +209,67 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 			while (docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset) >= 0) {
 				// Get index of current tag and see if there is another tag after this
 				const openIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
-				const closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
-				if (closeIdx === -1 && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
-					// Tag is missing a closing, add error
-					issues.push({
-						code: PAIR_ISSUES.NAME(tag),
-						message: PAIR_ISSUES.DESC(PAIR_ISSUES.NORM_CLOSE(tag)),
-						range: new vscode.Range(
-							doc.positionAt(openIdx + PAIR_ISSUES.OFFSET),
-							doc.positionAt(openIdx + PAIR_ISSUES.OFFSET + tag.length)
-						),
-						severity: vscode.DiagnosticSeverity.Error
-					});
+				let closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
+
+				// Only enter if the tag is actually what we are looking for
+				if (wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
+					// tagCount will increment when an opening is found and decrement when a closing is found
+					// initialized to 1 to include the current openIdx
+					let tagCount = 1;
+					const nextOpenIdxCheck = docText.indexOf(PAIR_ISSUES.OPEN(tag), openIdx + PAIR_ISSUES.OFFSET);
+					let workingIdx = nextOpenIdxCheck;
+					let workingCloseIdx = closeIdx;
+					// We'll only enter this while loop if there is another opening tag before the closing tag
+					if (nextOpenIdxCheck < workingCloseIdx) {
+						while (workingIdx !== -1 && tagCount !== 0) {
+							const nextOpenIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), workingIdx);
+							const nextCloseIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), workingIdx + PAIR_ISSUES.OFFSET);
+							
+							// Determine which tag we are looking at
+							if (nextOpenIdx < nextCloseIdx && nextOpenIdx !== -1) {
+								// The next tag in the document is an opening tag, increment
+								tagCount++;
+								workingIdx = nextOpenIdx + PAIR_ISSUES.OFFSET;
+							} else {
+								// The next tag in the document is a closing tag, decrement
+								tagCount--;
+								workingIdx = nextCloseIdx + PAIR_ISSUES.OFFSET;
+							}
+							
+							// update our closing idx
+							workingCloseIdx = nextCloseIdx;
+
+							// Exit the loop if we run out of tags or our workingIdx moves to before our start point
+							if ((nextOpenIdx === -1 && nextCloseIdx === -1) || workingIdx < nextOpenIdxCheck) {
+								break;
+							}
+						}
+
+						// Update the closeIdx
+						closeIdx = workingCloseIdx;
+					}
+
+					if (closeIdx === -1) {
+						// Tag is missing a closing, add error
+						issues.push({
+							code: PAIR_ISSUES.NAME(tag),
+							message: PAIR_ISSUES.DESC(PAIR_ISSUES.NORM_CLOSE(tag)),
+							range: new vscode.Range(
+								doc.positionAt(openIdx + PAIR_ISSUES.OFFSET),
+								doc.positionAt(openIdx + PAIR_ISSUES.OFFSET + tag.length)
+							),
+							severity: vscode.DiagnosticSeverity.Error
+						});
+					}
 				}
 
 				// shift currentOffset to after what we are marking
 				currentOffset = openIdx + PAIR_ISSUES.OPEN(tag).length;
-				lastCloseIdx = closeIdx + PAIR_ISSUES.NORM_CLOSE(tag).length;
+				if (lastCloseIdx > closeIdx + PAIR_ISSUES.NORM_CLOSE(tag).length) {
+					lastCloseIdx = lastCloseIdx;
+				} else {
+					lastCloseIdx = closeIdx + PAIR_ISSUES.NORM_CLOSE(tag).length;
+				}
 			}
 
 			// Handle closing without opening
@@ -260,31 +304,76 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				// Get index of current tag and see if there is another tag after this
 				const openIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), currentOffset);
 				let closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
-				if (closeIdx === -1) {
-					const nextTagIdx = docText.indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
-					// Get the closing idx, limited either by where the next tag is or the start of this tag
-					if (nextTagIdx === -1) {
-						closeIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
+
+				if (wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
+					if (closeIdx === -1) {
+						const nextTagIdx = docText.indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
+						// Get the closing idx, limited either by where the next tag is or the start of this tag
+						if (nextTagIdx === -1) {
+							closeIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
+						} else {
+							closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
+						}
 					} else {
-						closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
+						// tagCount will increment when an opening is found and decrement when a closing is found
+						// initialized to 1 to include the current openIdx
+						let tagCount = 1;
+						const nextOpenIdxCheck = docText.indexOf(PAIR_ISSUES.OPEN(tag), openIdx + PAIR_ISSUES.OFFSET);
+						let workingIdx = nextOpenIdxCheck;
+						let workingCloseIdx = closeIdx;
+						// We'll only enter this while loop if there is another opening tag before the closing tag
+						if (nextOpenIdxCheck < workingCloseIdx) {
+							while (workingIdx !== -1 && tagCount !== 0) {
+								const nextOpenIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), workingIdx);
+								const nextCloseIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), workingIdx + PAIR_ISSUES.OFFSET);
+								
+								// Determine which tag we are looking at
+								if (nextOpenIdx < nextCloseIdx && nextOpenIdx !== -1) {
+									// The next tag in the document is an opening tag, increment
+									tagCount++;
+									workingIdx = nextOpenIdx + PAIR_ISSUES.OFFSET;
+								} else {
+									// The next tag in the document is a closing tag, decrement
+									tagCount--;
+									workingIdx = nextCloseIdx + PAIR_ISSUES.OFFSET;
+								}
+								
+								// update our closing idx
+								workingCloseIdx = nextCloseIdx;
+
+								// Exit the loop if we run out of tags or our workingIdx moves to before our start point
+								if ((nextOpenIdx === -1 && nextCloseIdx === -1) || workingIdx < nextOpenIdxCheck) {
+									break;
+								}
+							}
+
+							// Update the closeIdx
+							closeIdx = workingCloseIdx;
+							console.log(tag, closeIdx)
+						}
 					}
-				}
-				if ((closeIdx === -1 || closeIdx <= openIdx) && wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
-					// Tag is missing a closing, add error
-					issues.push({
-						code: PAIR_ISSUES.NAME(tag),
-						message: PAIR_ISSUES.DESC(`${PAIR_ISSUES.NORM_CLOSE(tag)} or ${PAIR_ISSUES.SELF_CLOSE}`),
-						range: new vscode.Range(
-							doc.positionAt(openIdx + PAIR_ISSUES.OFFSET),
-							doc.positionAt(openIdx + PAIR_ISSUES.OFFSET + tag.length)
-						),
-						severity: vscode.DiagnosticSeverity.Error
-					});
+
+					if ((closeIdx === -1 || closeIdx <= openIdx)) {
+						// Tag is missing a closing, add error
+						issues.push({
+							code: PAIR_ISSUES.NAME(tag),
+							message: PAIR_ISSUES.DESC(`${PAIR_ISSUES.NORM_CLOSE(tag)} or ${PAIR_ISSUES.SELF_CLOSE}`),
+							range: new vscode.Range(
+								doc.positionAt(openIdx + PAIR_ISSUES.OFFSET),
+								doc.positionAt(openIdx + PAIR_ISSUES.OFFSET + tag.length)
+							),
+							severity: vscode.DiagnosticSeverity.Error
+						});
+					}
 				}
 
 				// shift currentOffset to after what we are marking
 				currentOffset = openIdx + PAIR_ISSUES.OPEN(tag).length;
-				lastCloseIdx = closeIdx + PAIR_ISSUES.NORM_CLOSE(tag).length;
+				if (lastCloseIdx > closeIdx + PAIR_ISSUES.NORM_CLOSE(tag).length) {
+					lastCloseIdx = lastCloseIdx;
+				} else {
+					lastCloseIdx = closeIdx + PAIR_ISSUES.NORM_CLOSE(tag).length;
+				}
 			}
 
 			// Handle closing without opening

@@ -91,5 +91,5 @@ export const NAMESPACE_ISSUE = {
 export const DUPLICATE_ID_ISSUE = {
 	NAME: 'duplicateId',
 	WARN: (name: string) => `The id "${name}" is already used by a differnt tag, please change one of these to avoid confusion.`,
-	DESC: (name: string) => `The id "${name}" is already used by the same tag type.`
+	DESC: (name: string) => `The id "${name}" is already used by the same tag type in this namespace.`
 };
