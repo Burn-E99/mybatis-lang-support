@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
 import { MybatisNamespaces } from './types';
+import * as completionActions from './completionActions';
 import * as diagnostics from './diagnostics';
 import * as namespaceActions from './namespaceActions';
 import * as parser from './parsers';
 import * as utils from './utils';
+import { REFID_ISSUE } from './issues';
 
 // Init "global" vars
 let mapperPath: string;
@@ -89,6 +91,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Provide definition links for namespaces
 	context.subscriptions.push(vscode.languages.registerDefinitionProvider('xml', new namespaceActions.NamespaceDefinitionsProvider()));
 
+	// Provide tab completion for refids (namespace step)
+	context.subscriptions.push(vscode.languages.registerCompletionItemProvider('xml', new completionActions.RefIdNamespaceCompletionProvider(), completionActions.namespaceTriggerChar));
+	
+	// Provide tab completion for refids (reference step)
+	context.subscriptions.push(vscode.languages.registerCompletionItemProvider('xml', new completionActions.RefIdReferemceCompletionProvider(), completionActions.referenceTriggerChar));
+
 	// Activation done
 	vscode.window.showInformationMessage('Mybatis Language Support Online.');
 }
@@ -129,4 +137,24 @@ export function lookupCodeBehindRefId(namespace: string, refId: string): (vscode
 // Gets the namespace for the provided doc
 export function getNamespaceFromDoc(doc: vscode.TextDocument): string {
 	return mybatisNamespaces.names[mybatisNamespaces.paths.indexOf(doc.uri.path)];
+}
+
+// Gets list of unique namespaces
+export function getUniqueNamespaces(): Array<string> {
+	return [...new Set(mybatisNamespaces.names)].filter(namespace => namespace !== REFID_ISSUE.NO_NAMESPACE_TEXT);
+}
+
+// Gets list of unique sql ids in a specific namespace
+export function getUniqueSqlIdsInNamespace(namesapce: string): Array<string> {
+	const sqlIds: Array<string> = [];
+
+	// Merge all files that share namespaces to get all sql ids for the requested namespace
+	let workingIdx = 0;
+	while (mybatisNamespaces.names.indexOf(namesapce, workingIdx) !== -1) {
+		const currentIdx = mybatisNamespaces.names.indexOf(namesapce, workingIdx);
+		sqlIds.push(...mybatisNamespaces.details[currentIdx].ids.sql);
+		workingIdx = currentIdx + 1;
+	}
+
+	return [...new Set(sqlIds)];
 }

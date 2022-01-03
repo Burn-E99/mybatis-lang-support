@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
+import { REFID_ISSUE } from './issues';
 import { MybatisNamespace } from './types';
 
 // Parses the namespace and ids out of the given xml file
 const parseNamespaces = (doc: vscode.TextDocument, mapperTag: string): MybatisNamespace => {
 	const names: MybatisNamespace = {
 		path: doc.uri.path,
-		name: 'no_namespace',
+		name: REFID_ISSUE.NO_NAMESPACE_TEXT,
 		ids: {
 			sql: [],
 			select: [],

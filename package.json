@@ -2,7 +2,7 @@
 	"name": "mybatis-lang-support",
 	"displayName": "mybatis-lang-support",
 	"description": "Adds support for mybatis xml in Java projects, helping alleviate typos and other common issues.",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"publisher": "ean-milligan",
 	"license": "MPL-2.0 License",
 	"icon": "icon.png",

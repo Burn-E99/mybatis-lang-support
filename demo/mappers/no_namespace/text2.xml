@@ -4,4 +4,9 @@
 		<!-- this should be erroring out when mapperTag is set to mapper -->
 		WHERE <include refid="test.testing"/>
 	</select>
+
+	<delete id="aoiasios">
+		DELETE * FROM
+		<include refid="Tables.TABLE_SEVEN_AV"/>
+	</delete>
 </sqlMap>

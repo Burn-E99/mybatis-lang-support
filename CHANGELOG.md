@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "mybatis-lang-support" extension will be documented in this file.
 
+## [0.4.0] - 2022-01-02
+- Added new configuration to support older versions of ibatis/mybatis that used sqlMap in place of mapper ([gh-7](/../../issues/7))
+- Added new code fix for refids that are missing a namespace ([gh-8](/../../issues/8))
+- Added tab completion to `<include refid="` ([gh-9](/../../issues/9))
+
 ## [0.3.0] - 2022-01-02
 - Fixed caret issues from showing on < and > that were inside a parameter string ([gh-1](/../../issues/1))
 - Downgraded duplicate namespace error to warning ([gh-6](/../../issues/6))

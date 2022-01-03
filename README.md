@@ -8,6 +8,13 @@ Mybatis Lang Support adds useful error checking to Mybatis mapper XML files, hel
 * Verifies that all tags are properly closed
 * Provides quick links on `<include refid` tags to quickly jump between the usage and definition
 * Shows definition of the `<include refid` when holding `Ctrl` and hovering over a `refid`
+* Provides tab completion for `refids`, first suggesting the namespaces, then after pressing `.`, the sql references
+  * !! NOTICE !! Tab completions will not work without the following setting set either in your workspace or user settings:
+	```
+	"editor.quickSuggestions": {
+		"strings": true
+	}
+	```
 
 ## Extension Settings
 * `mybatis-lang-support.mapperPath`: Name of the folder holding your mapper.xml files. Start with `./` to make relative to this workspace.

@@ -1,3 +1,5 @@
 {
-	"mybatis-lang-support.mapperFolderNames": "mappers"
+	"editor.quickSuggestions": {
+		"strings": true
+	}
 }

@@ -51,6 +51,7 @@ export const REFID_ISSUE = {
 	MISSING_NAMESPACE_NAME: 'namespaceMissing',
 	MISSING_NAMESPACE_DESC: (name: string) => `The namespace "${name}" does not exist.`,
 	NO_NAMESPACE_NAME: 'noNamespace',
+	NO_NAMESPACE_TEXT: 'no_namespace',
 	NO_NAMESPACE_DESC: 'No namespace is provided in this refid, please add one to avoid confusion.',
 	MISSING_ID_NO_NAMESPACE_NAME: 'refIdMissingNoNamespace',
 	MISSING_ID_NO_NAMESPACE_DESC: (ref: string) => `The refid "${ref}" does not exist in this file's namespace.`,
