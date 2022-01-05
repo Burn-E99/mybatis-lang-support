@@ -48,8 +48,17 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				// Get current line
 				const currentLine = doc.lineAt(doc.positionAt(currentIdx).line).text;
 
+				// Determine if this is within a CDATA tag
+				const lastTagOpen = docText.lastIndexOf('<', currentIdx);
+				const lastCDATAOpen = docText.lastIndexOf('<![CDATA[', currentIdx);
+				const nextCDATAClose = docText.indexOf(']]>', currentIdx);
+
 				// Make sure the caret issue is not inside a string (such as inside a test param on an if tag)
-				if (currentLine.indexOf('"', currentIdx) === -1 && currentLine.lastIndexOf('"', currentIdx) === -1) {
+				// Make sure the caret issue is not inside a <![CDATA[ <> ]]> tag
+				if (
+					currentLine.indexOf('"', currentIdx) === -1 && currentLine.lastIndexOf('"', currentIdx) === -1 &&
+					!(lastTagOpen === lastCDATAOpen && lastCDATAOpen < currentIdx && nextCDATAClose > currentIdx)
+				) {
 					issues.push({
 						code: CARET_ISSUE.NAME,
 						message: CARET_ISSUE.DESC,

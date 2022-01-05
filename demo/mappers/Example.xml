@@ -27,6 +27,7 @@
 		FROM
 			<include refid="Fake.TABLE_ONE_AV"/>
 		<include refid="Example.testWhereClause"/>
+		AND COLNAME10 <![CDATA[ <> ]]> 17
 	</select>
 
 	<delete id="differentTest">
@@ -36,6 +37,7 @@
 			AND COLNAME3 > 2
 			AND COLNAME4 <= 3
 			AND COLNAME5 >= 4
+			AND COLNAME10 <![CDATA[ <> ]]> 17
 			<if test="variable > 10">
 				OR COLNAME6 = 1
 			</if>
