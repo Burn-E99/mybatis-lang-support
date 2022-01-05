@@ -141,6 +141,7 @@ export function getNamespaceFromDoc(doc: vscode.TextDocument): string {
 
 // Gets list of unique namespaces
 export function getUniqueNamespaces(): Array<string> {
+	// new Set is used to eliminate duplicates
 	return [...new Set(mybatisNamespaces.names)].filter(namespace => namespace !== REFID_ISSUE.NO_NAMESPACE_TEXT);
 }
 
@@ -156,5 +157,6 @@ export function getUniqueSqlIdsInNamespace(namesapce: string): Array<string> {
 		workingIdx = currentIdx + 1;
 	}
 
+	// new Set is used to eliminate duplicates
 	return [...new Set(sqlIds)];
 }

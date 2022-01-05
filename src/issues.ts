@@ -66,11 +66,12 @@ export const PAIR_ISSUES = {
 		'result', 'id', 'idArg', 'arg', 'cache-ref', 'bind', 'typeAlias', 'setting', 'package', 'typeHandler'
 	],
 	NORM_CLOSING: [
-		'select', 'delete', 'insert', 'update', 'selectKey', 'sql', 'resultMap', 'typeAliases', 'constructor', 'discriminator', 'if', 'foreach', 'choose', 'when', 'otherwise', 'where', 'trim', 'set',
-		'settings', 'dataSource', 'typeHandlers', 'objectFactory', 'plugins', 'plugin', 'environments', 'environment', 'mappers', 'sqlMap'
+		'select', 'delete', 'insert', 'update', 'selectKey', 'sql', 'typeAliases', 'constructor', 'discriminator', 'foreach', 'choose', 'when', 'otherwise', 'where', 'trim', 'set',
+		'dataSource', 'typeHandlers', 'objectFactory', 'plugins', 'plugin', 'environments', 'environment', 'mappers'
 	],
 	BOTH_CLOSING: [
-		'association', 'collection', 'include', 'case', 'cache', 'databaseIdProvider', 'mapper', 'transactionManager', 'property', 'properties', 'constructor-arg'
+		'association', 'collection', 'include', 'case', 'cache', 'databaseIdProvider', 'mapper', 'transactionManager',
+		'property', 'properties', 'constructor-arg', 'sqlMap', 'settings', 'if', 'resultMap'
 	],
 	OPEN: (tag: string) => `<${tag}`,
 	NORM_CLOSE: (tag: string) => `</${tag}>`,
