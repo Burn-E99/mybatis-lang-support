@@ -13,4 +13,19 @@
 		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
 			<include refid="Example.testWhereClause"/>
 	</delete>
+
+	<!-- GH-18 Issue appears on self close tags before a normal close pair, but not after -->
+	<include />
+	<include />
+	<include />
+	<include />
+	<include />
+	<include>
+		<tag></tag>
+	</include>
+	<include />
+	<include />
+	<include />
+	<include />
+	<include />
 </mapper>
