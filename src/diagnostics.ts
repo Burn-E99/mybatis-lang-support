@@ -557,19 +557,35 @@ export class FixCarets implements vscode.CodeActionProvider {
 
 	public provideCodeActions(doc: vscode.TextDocument, range: vscode.Range | vscode.Selection, context: vscode.CodeActionContext): vscode.CodeAction[] {
 		// Map correct fix to correct issue
-		return context.diagnostics
-			.filter(diagnostic => CARET_ISSUES.some(caretIssue => caretIssue.NAME === diagnostic.code))
-			.map(diagnostic => this.createCommandCodeAction(doc, range, diagnostic));
+		const actions: Array<vscode.CodeAction> = [];
+		for (const diagnostic of context.diagnostics.filter(diagnostic => CARET_ISSUES.some(caretIssue => caretIssue.NAME === diagnostic.code))) {
+			actions.push(this.createCommandCodeAction(doc, range, diagnostic, 1));
+			actions.push(this.createCommandCodeAction(doc, range, diagnostic, 2));
+		}
+		return actions;
 	}
 
-	private createCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range, diagnostic: vscode.Diagnostic): vscode.CodeAction {
+	private createCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range, diagnostic: vscode.Diagnostic, fixOption: number): vscode.CodeAction {
 		// Get details on the current issue
 		const DIAG = CARET_ISSUES.filter(caretIssue => caretIssue.NAME === diagnostic.code)[0];
+
+		// Get details for the right fix
+		let codeToInsert = '';
+		let solutionText = '';
+		if (fixOption === 1) {
+			codeToInsert = DIAG.FIX1;
+			solutionText = DIAG.SOLUTION1;
+		} else if (fixOption === 2) {
+			codeToInsert = DIAG.FIX2;
+			solutionText = DIAG.SOLUTION2;
+		}
+
 		// Set up the fix
-		const fix = new vscode.CodeAction(`Convert to ${DIAG.SOLUTION}`, vscode.CodeActionKind.QuickFix);
+		const fix = new vscode.CodeAction(`Convert to ${solutionText}`, vscode.CodeActionKind.QuickFix);
 		fix.edit = new vscode.WorkspaceEdit();
+
 		// Do the fix
-		fix.edit.replace(doc.uri, new vscode.Range(range.start, range.start.translate(0, DIAG.SIZE)), DIAG.FIX);
+		fix.edit.replace(doc.uri, new vscode.Range(range.start, range.start.translate(0, DIAG.SIZE)), codeToInsert);
 		return fix;
 	}
 }
