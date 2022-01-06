@@ -71,6 +71,16 @@ export const CARET_ISSUES = [
 		FIX2: '<![CDATA[ <> ]]>',
 		OFFSET: 1,
 		SIZE: 5
+	}, {
+		NAME: 'mustBeAmp',
+		DESC: '&& cannot be used in mapper files for bitwise operations.',
+		PROBLEM: ' & ',
+		SOLUTION1: '&&amp;',
+		SOLUTION2: '<![CDATA[ && ]]>',
+		FIX1: '&amp;',
+		FIX2: '<![CDATA[ & ]]>',
+		OFFSET: 1,
+		SIZE: 1
 	}
 ];
 

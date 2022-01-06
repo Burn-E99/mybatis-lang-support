@@ -7,6 +7,10 @@
 			AND COLNAME2 LIKE '%HI%'
 	</sql>
 
+	<sql id="testNumber">
+		3
+	</sql>
+
 	<select id="testSelect1">
 		SELECT
 			*
@@ -38,7 +42,7 @@
 			AND COLNAME2 < 1
 			AND COLNAME3 > 2
 			AND COLNAME4 <= 3
-			AND COLNAME5 >= 4
+			AND COLNAME5 >= <include refid="Example.testNumber"/>
 			AND COLNAME10 <![CDATA[ <> ]]> 17
 			<if test="variable > 10">
 				OR COLNAME6 = 1
@@ -50,6 +54,11 @@
 				</update>
 			-->
 	</delete>
+
+	<select id="bitwiseTest">
+		SELECT age::bit(8) & '11111111'
+		FROM <include refid="Tables.TABLE_ONE_AV"/>
+	</select>
 
 	<!-- GH-22 should have an error -->
 	</select>
