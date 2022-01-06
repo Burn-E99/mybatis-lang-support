@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to the "mybatis-lang-support" extension will be documented in this file.
 
+## [0.5.0] - 2022-01-06
+- Added the namespace name to the `refIdMissingNoNamespace` error ([gh-11](/../../issues/11))
+- Created legacy support setting to allow `<include refid=""/>` statements to be missing the namespace while referring to an id outside of the current namespace ([gh-21](/../../issues/21))
+- Added code fix option for caret issues that wraps the raw carets in `<![CDATA[ <> ]]>` instead of encoding the carets ([gh-15](/../../issues/15))
+- Added checking for partial caret issues (such as `&lt;>`), with proper quick fixes provided on the error ([gh-17](/../../issues/17))
+- Added error checking for bitwise operators ([gh-13](/../../issues/13))
+- Fixed caret issues not showing up when a string was in the same line as an issue ([gh-23](/../../issues/23))
+- Added new quick fix suggestion for refids missing a namespace when the requested id is not on the current file's namespace ([gh-16](/../../issues/16))
+
 ## [0.4.1] - 2022-01-06
 - Fixed which tags can be self closed and normal closed ([gh-10](/../../issues/10))
 - Fixed caret issues not being ignored while inside a cdata tag like `<![CDATA[ <> ]]>` ([gh-14](/../../issues/14))
