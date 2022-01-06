@@ -142,6 +142,17 @@ export function getNamespaceFromDoc(doc: vscode.TextDocument): string {
 	return mybatisNamespaces.names[mybatisNamespaces.paths.indexOf(doc.uri.path)];
 }
 
+// Tries to get a namespace from the provided refId
+export function getNamespaceFromRefId(refId: string): (string | undefined) {
+	// Loop through every doc to see if our refId exists in any of the mappers, returning the first one we find
+	for (const mybatisNamespace of mybatisNamespaces.details) {
+		if (mybatisNamespace.ids.sql.includes(refId)) {
+			return mybatisNamespace.name;
+		}
+	}
+	return undefined;
+}
+
 // Gets list of unique namespaces
 export function getUniqueNamespaces(): Array<string> {
 	// new Set is used to eliminate duplicates

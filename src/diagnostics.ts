@@ -3,7 +3,7 @@ import * as clone from 'clone';
 import * as utils from './utils';
 import { MybatisNamespace, MybatisNamespaces } from './types';
 import { CARET_ISSUES, REFID_ISSUE, PAIR_ISSUES, NAMESPACE_ISSUE, DUPLICATE_ID_ISSUE } from './issues';
-import { getNamespaceFromDoc } from './extension';
+import { getNamespaceFromDoc, getNamespaceFromRefId } from './extension';
 
 const wordEndRegex = /([\s\t\r\n>])/;
 
@@ -602,13 +602,23 @@ export class FixMissingNamespaces implements vscode.CodeActionProvider {
 	];
 
 	public provideCodeActions(doc: vscode.TextDocument, range: vscode.Range | vscode.Selection, context: vscode.CodeActionContext): vscode.CodeAction[] {
+		// Fill simple missing namespace issues
+		const actions: Array<vscode.CodeAction> = context.diagnostics
+			.filter(diagnostic => diagnostic.code === REFID_ISSUE.NO_NAMESPACE_NAME)
+			.map(() => this.createSimpleCommandCodeAction(doc, range));
+
+		// Fill complex missing namespace issues
+		context.diagnostics.filter(diagnostic => diagnostic.code === REFID_ISSUE.MISSING_ID_NO_NAMESPACE_NAME).forEach(e => {
+			const fix = this.createComplexCommandCodeAction(doc, range);
+			if (fix) {
+				actions.push(fix);
+			}
+		});
 		// Map correct fix to correct issue
-		return context.diagnostics
-			.filter(diagnostic => REFID_ISSUE.NO_NAMESPACE_NAME === diagnostic.code)
-			.map(() => this.createCommandCodeAction(doc, range));
+		return actions;
 	}
 
-	private createCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range): vscode.CodeAction {
+	private createSimpleCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range): vscode.CodeAction {
 		const namespace = getNamespaceFromDoc(doc);
 		const replaceStr = `${namespace}.${doc.getText(range)}`;
 		// Set up the fix
@@ -617,5 +627,21 @@ export class FixMissingNamespaces implements vscode.CodeActionProvider {
 		// Do the fix
 		fix.edit.replace(doc.uri, range, replaceStr);
 		return fix;
+	}
+
+	private createComplexCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range): (vscode.CodeAction | undefined) {
+		// Try to get the namespace
+		const namespace = getNamespaceFromRefId(doc.getText(range));
+		if (namespace) {
+			// If we get a namespace, provide a fix
+			const replaceStr = `${namespace}.${doc.getText(range)}`;
+			// Set up the fix
+			const fix = new vscode.CodeAction(`Prepend ${namespace} to this refid`, vscode.CodeActionKind.QuickFix);
+			fix.edit = new vscode.WorkspaceEdit();
+			// Do the fix
+			fix.edit.replace(doc.uri, range, replaceStr);
+			return fix;
+		}
+		return undefined;
 	}
 }
