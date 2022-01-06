@@ -81,6 +81,7 @@
 
 	</insert>
 
+	<!-- GH-22 demo -->
 	</case>
 
 	<!-- the following should not have errors -->
