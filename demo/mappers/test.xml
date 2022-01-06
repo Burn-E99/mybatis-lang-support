@@ -20,6 +20,10 @@
 			<include refid="Example.testWhereClause"/>
 	</delete>
 
+	<select id="differentTest">
+
+	</select>
+
 	<!-- GH-18 Issue appears on self close tags before a normal close pair, but not after -->
 	<include />
 	<include />

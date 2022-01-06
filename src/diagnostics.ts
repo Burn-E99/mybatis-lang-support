@@ -471,30 +471,36 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		
 		// Warn user of ids used between different types
 		for (const duplicateId of duplicateIds.all) {
-			issues.push({
-				code: DUPLICATE_ID_ISSUE.NAME,
-				message: DUPLICATE_ID_ISSUE.WARN(duplicateId),
-				range: new vscode.Range(
-					doc.positionAt(docText.indexOf(` id="${duplicateId}"`) + 5),
-					doc.positionAt(docText.indexOf(` id="${duplicateId}"`) + 5 + duplicateId.length)
-				),
-				severity: vscode.DiagnosticSeverity.Warning
-			});
+			const duplicateIdStr = ` id="${duplicateId}"`;
+			if (docText.indexOf(duplicateIdStr) >= 0) {
+				issues.push({
+					code: DUPLICATE_ID_ISSUE.NAME,
+					message: DUPLICATE_ID_ISSUE.WARN(duplicateId),
+					range: new vscode.Range(
+						doc.positionAt(docText.indexOf(duplicateIdStr) + 5),
+						doc.positionAt(docText.indexOf(duplicateIdStr) + 5 + duplicateId.length)
+					),
+					severity: vscode.DiagnosticSeverity.Warning
+				});
+			}
 		}
 
 		// Show errors on duplicate ids within one type
 		for (const type of Object.keys(myDetails.ids)) {
 			if (type === 'sql' || type === 'insert' || type === 'update' || type === 'delete' || type === 'select') {
 				for (const duplicateId of duplicateIds[type]) {
-					issues.push({
-						code: DUPLICATE_ID_ISSUE.NAME,
-						message: DUPLICATE_ID_ISSUE.DESC(duplicateId),
-						range: new vscode.Range(
-							doc.positionAt(docText.indexOf(` id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5),
-							doc.positionAt(docText.indexOf(` id="${duplicateId}"`, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5 + duplicateId.length)
-						),
-						severity: vscode.DiagnosticSeverity.Error
-					});
+					const duplicateIdStr = ` id="${duplicateId}"`;
+					if (docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) >= 0) {
+						issues.push({
+							code: DUPLICATE_ID_ISSUE.NAME,
+							message: DUPLICATE_ID_ISSUE.DESC(duplicateId),
+							range: new vscode.Range(
+								doc.positionAt(docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5),
+								doc.positionAt(docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5 + duplicateId.length)
+							),
+							severity: vscode.DiagnosticSeverity.Error
+						});
+					}
 				}
 			}
 		}
