@@ -1,6 +1,8 @@
 # mybatis-lang-support
 Mybatis Lang Support adds useful error checking to Mybatis mapper XML files, helping alleviate typos and other common issues.
 
+This extension is intended to be used on ibatis and mybatis projects using `useStatementNamespaces="true"` ([details](http://java.ociweb.com/mark/programming/iBATIS.html#MappedStatements)).  If your project does not use this, or utilizes references without namespaces, you should enable the `legacySupport` setting.
+
 ## Features
 * Verifies that all `<` and `>` characters are properly encoded, and provides quickfixes when they are not properly encoded
 * Verifies that all references exist with valid namespaces, and provides quickfixes when a namespace is missing from the reference
@@ -19,6 +21,7 @@ Mybatis Lang Support adds useful error checking to Mybatis mapper XML files, hel
 ## Extension Settings
 * `mybatis-lang-support.mapperPath`: Name of the folder holding your mapper.xml files. Start with `./` to make relative to this workspace.
 * `mybatis-lang-support.mapperTag`: Name of the tag that defines the mappers.
+* `mybatis-lang-support.legacySupport`: Enable this setting to support legacy standards.  This setting will remove the namespace requirement for `<include refid=\"\"/>`, allowing ids to be referenced without a namespace.
 
 ## Installation
 Get it direct from the [Extension Marketplace](https://marketplace.visualstudio.com/items?itemName=ean-milligan.mybatis-lang-support).
