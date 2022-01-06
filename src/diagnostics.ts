@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as clone from 'clone';
+import * as utils from './utils';
 import { MybatisNamespace, MybatisNamespaces } from './types';
 import { CARET_ISSUES, REFID_ISSUE, PAIR_ISSUES, NAMESPACE_ISSUE, DUPLICATE_ID_ISSUE } from './issues';
 import { getNamespaceFromDoc } from './extension';
@@ -27,8 +28,19 @@ export const init = async (mapperPath: string, collection: vscode.DiagnosticColl
 // Set diagnostic markers on doc
 export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCollection, mapperPath: string, mybatisNamespaces: MybatisNamespaces) => {
 	if (doc && mapperPath && doc.uri.path.startsWith(mapperPath) && doc.uri.path.toLowerCase().endsWith('.xml')) {
+		const legacySupport = utils.getLegacySupport();
+		let legacySqlIds: Array<string> = [];
 		const issues: Array<vscode.Diagnostic> = [];
 		let docText = doc.getText();
+
+		// Prefill legacySqlIds if we are in legacy mode
+		if (legacySupport) {
+			for (const mybatisNamespace of mybatisNamespaces.details) {
+				legacySqlIds.push(...new Set(mybatisNamespace.ids.sql));
+			}
+			// Remove duplicates
+			legacySqlIds = [...new Set(legacySqlIds)];
+		}
 
 		// Ignore comments by removing them from the document (in our local docText only)
 		while (docText.indexOf('<!--') >= 0) {
@@ -162,16 +174,43 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 						severity: vscode.DiagnosticSeverity.Warning
 					});
 				} else {
-					// Reference does not exist, error
-					issues.push({
-						code: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_NAME,
-						message: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_DESC(refidText, mybatisNamespace.name),
-						range: new vscode.Range(
-							doc.positionAt(includeStartIdx),
-							doc.positionAt(includeEndIdx)
-						),
-						severity: vscode.DiagnosticSeverity.Error
-					});
+					if (legacySupport) {
+						// Legacy support is on, check all namespaces
+						if (legacySqlIds.includes(refidText)) {
+							// Reference exists, show warning
+							issues.push({
+								code: REFID_ISSUE.NO_NAMESPACE_NAME,
+								message: REFID_ISSUE.NO_NAMESPACE_DESC,
+								range: new vscode.Range(
+									doc.positionAt(includeStartIdx),
+									doc.positionAt(includeEndIdx)
+								),
+								severity: vscode.DiagnosticSeverity.Warning
+							});
+						} else {
+							// Reference does not exist, error
+							issues.push({
+								code: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_NAME,
+								message: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_GLOBAL(refidText),
+								range: new vscode.Range(
+									doc.positionAt(includeStartIdx),
+									doc.positionAt(includeEndIdx)
+								),
+								severity: vscode.DiagnosticSeverity.Error
+							});
+						}
+					} else {
+						// Reference does not exist, error
+						issues.push({
+							code: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_NAME,
+							message: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_DESC(refidText, mybatisNamespace.name),
+							range: new vscode.Range(
+								doc.positionAt(includeStartIdx),
+								doc.positionAt(includeEndIdx)
+							),
+							severity: vscode.DiagnosticSeverity.Error
+						});
+					}
 				}
 			}
 

@@ -42,3 +42,8 @@ export const getMapperPath = async (showSaved: boolean): Promise<string> => {
 export const getMapperTag = (): string => {
 	return vscode.workspace.getConfiguration('mybatis-lang-support').get('mapperTag') || 'mapper';
 };
+
+// legacySupport getter
+export const getLegacySupport = (): boolean => {
+	return vscode.workspace.getConfiguration('mybatis-lang-support').get('legacySupport') || false;
+};

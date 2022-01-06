@@ -41,6 +41,11 @@
 						],
 						"default": "mapper",
 						"markdownDescription": "Name of the tag that defines the mappers."
+					},
+					"mybatis-lang-support.legacySupport": {
+						"type": "boolean",
+						"default": false,
+						"markdownDescription": "Enable this setting to support legacy standards.  This setting will remove the namespace requirement for `<include refid=\"\"/>`, allowing ids to be referenced without a namespace."
 					}
 				}
 			}

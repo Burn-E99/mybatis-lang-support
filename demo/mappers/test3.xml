@@ -2,4 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Example2">
 	<!-- GH-20 error currently shows on line 1, should not be shown here -->
+
+	<select id="gh21demo">
+		SELECT *
+		FROM <include refid="TABLE_ONE_AV"/>
+	</select>
+	<select id="gh21demo2">
+		SELECT *
+		FROM <include refid="THIS_DOES_NOT_EXIST"/>
+	</select>
 </mapper>
