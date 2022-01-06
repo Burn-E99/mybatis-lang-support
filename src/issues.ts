@@ -51,6 +51,26 @@ export const CARET_ISSUES = [
 		FIX2: '<![CDATA[ >= ]]>',
 		OFFSET: 1,
 		SIZE: 2
+	}, {
+		NAME: 'mustBeLTGT',
+		DESC: '<> cannot be used in mapper files for comparison.',
+		PROBLEM: ' &lt;> ',
+		SOLUTION1: '&&lt;&&gt;',
+		SOLUTION2: '<![CDATA[ <> ]]>',
+		FIX1: '&lt;&gt;',
+		FIX2: '<![CDATA[ <> ]]>',
+		OFFSET: 1,
+		SIZE: 5
+	}, {
+		NAME: 'mustBeLTGT',
+		DESC: '<> cannot be used in mapper files for comparison.',
+		PROBLEM: ' <&gt; ',
+		SOLUTION1: '&&lt;&&gt;',
+		SOLUTION2: '<![CDATA[ <> ]]>',
+		FIX1: '&lt;&gt;',
+		FIX2: '<![CDATA[ <> ]]>',
+		OFFSET: 1,
+		SIZE: 5
 	}
 ];
 

@@ -33,6 +33,8 @@
 	<delete id="differentTest">
 		DELETE FROM <include refid="Tables.TABLE_TWO_UV"/>
 		WHERE COLNAME1 <> 'test'
+			AND COLNAME1 &lt;> 'test'
+			AND COLNAME1 <&gt; 'test'
 			AND COLNAME2 < 1
 			AND COLNAME3 > 2
 			AND COLNAME4 <= 3

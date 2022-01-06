@@ -585,7 +585,7 @@ export class FixCarets implements vscode.CodeActionProvider {
 		fix.edit = new vscode.WorkspaceEdit();
 
 		// Do the fix
-		fix.edit.replace(doc.uri, new vscode.Range(range.start, range.start.translate(0, DIAG.SIZE)), codeToInsert);
+		fix.edit.replace(doc.uri, range, codeToInsert);
 		return fix;
 	}
 }
