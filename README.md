@@ -4,7 +4,7 @@ Mybatis Lang Support adds useful error checking to Mybatis mapper XML files, hel
 This extension is intended to be used on ibatis and mybatis projects using `useStatementNamespaces="true"` ([details](http://java.ociweb.com/mark/programming/iBATIS.html#MappedStatements)).  If your project does not use this, or utilizes references without namespaces, you should enable the `legacySupport` setting.
 
 ## Features
-* Verifies that all `<` and `>` characters are properly encoded, and provides quickfixes when they are not properly encoded
+* Verifies that all `<`, `>`, and `&` characters are properly encoded, and provides quickfixes when they are not properly encoded
 * Verifies that all references exist with valid namespaces, and provides quickfixes when a namespace is missing from the reference
 * Verifies that ids are not duplicated
 * Verifies that all tags are properly closed
