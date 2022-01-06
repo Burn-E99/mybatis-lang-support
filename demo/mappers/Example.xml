@@ -49,6 +49,8 @@
 			-->
 	</delete>
 
+	<!-- GH-22 should have an error -->
+	</select>
 
 	<select id="testDuplicateId">
 		SELECT
@@ -83,6 +85,7 @@
 
 	<!-- GH-22 demo -->
 	</case>
+	</select>
 
 	<!-- the following should not have errors -->
 	<foreach>
