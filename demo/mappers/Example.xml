@@ -106,6 +106,8 @@
 		</case>
 	</case>
 
+	</case>
+
 	<resultMap>
 	</resultMap>
 </mapper>
