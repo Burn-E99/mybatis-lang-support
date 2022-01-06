@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to the "mybatis-lang-support" extension will be documented in this file.
 
-## [0.4.1] - 2022-01-04
+## [0.4.1] - 2022-01-06
 - Fixed which tags can be self closed and normal closed ([gh-10](/../../issues/10))
 - Fixed caret issues not being ignored while inside a cdata tag like `<![CDATA[ <> ]]>` ([gh-14](/../../issues/14))
 - Fixed errors appearing on properly closed tags in a file that has mixed normal and self closing of the same tag ([gh-18](/../../issues/18))
