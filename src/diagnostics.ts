@@ -165,7 +165,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 					// Reference does not exist, error
 					issues.push({
 						code: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_NAME,
-						message: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_DESC(refidText),
+						message: REFID_ISSUE.MISSING_ID_NO_NAMESPACE_DESC(refidText, mybatisNamespace.name),
 						range: new vscode.Range(
 							doc.positionAt(includeStartIdx),
 							doc.positionAt(includeEndIdx)
