@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to the "mybatis-lang-support" extension will be documented in this file.
 
+## [0.4.1] - 2022-01-04
+- Fixed which tags can be self closed and normal closed ([gh-10](/../../issues/10))
+- Fixed caret issues not being ignored while inside a cdata tag like `<![CDATA[ <> ]]>` ([gh-14](/../../issues/14))
+- Fixed errors appearing on properly closed tags in a file that has mixed normal and self closing of the same tag ([gh-18](/../../issues/18))
+- Fixed ids being parsed when they were commented out and should be ignored ([gh-19](/../../issues/19))
+- Fixed duplicate id errors/warnings being shown on files that do not have the id in them (related to files sharing the same namespace) ([gh-20](/../../issues/20))
+
 ## [0.4.0] - 2022-01-03
 - Added new configuration to support older versions of ibatis/mybatis that used sqlMap in place of mapper ([gh-7](/../../issues/7))
 - Added new code fix for refids that are missing a namespace ([gh-8](/../../issues/8))
