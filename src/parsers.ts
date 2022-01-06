@@ -16,15 +16,24 @@ const parseNamespaces = (doc: vscode.TextDocument, mapperTag: string): MybatisNa
 		}
 	};
 
+	let docText = doc.getText();
+
+	while (docText.indexOf('<!--') >= 0) {
+		const startIdx = docText.indexOf('<!--');
+		const endIdx = docText.indexOf('-->') + 3;
+		
+		// Replace comment with whitespace chars
+		docText = docText.substring(0, startIdx) + new Array(endIdx - startIdx + 1).join(' ') + docText.substring(endIdx);
+	}
+
 	// Get file contents we care about
-	const startPos = doc.positionAt(doc.getText().indexOf(`<${mapperTag} `));
-	const endIdx = doc.getText().indexOf(`</${mapperTag}>`);
+	const startPos = doc.positionAt(docText.indexOf(`<${mapperTag} `));
+	const endIdx = docText.indexOf(`</${mapperTag}>`);
 	if (endIdx === -1) {
 		return names;
 	}
 	const endPos = doc.positionAt(endIdx);
-	const mapperRange = new vscode.Range(startPos, endPos);
-	const mapperText = doc.getText(mapperRange);
+	const mapperText = docText.substring(doc.offsetAt(startPos), doc.offsetAt(endPos));
 
 	// Get namespace name
 	const nameStartIdx = mapperText.indexOf(' namespace="') + 12;

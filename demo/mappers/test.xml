@@ -9,6 +9,12 @@
 		COLNAME2 = 2
 	</sql>
 
+	<!-- GH-19 demo
+	<sql id="externalInclude2">
+		COLNAME2 = 2
+	</sql>
+	-->
+
 	<delete id="differentTest">
 		DELETE FROM <include refid="Tables.TABLE_ONE_UV"/>
 			<include refid="Example.testWhereClause"/>
