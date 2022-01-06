@@ -10,6 +10,7 @@ import { REFID_ISSUE } from './issues';
 // Init "global" vars
 let mapperPath: string;
 let mapperTag: string;
+let legacySupport: boolean;
 const mybatisNamespaces: MybatisNamespaces = {
 	paths: [],
 	names: [],
@@ -20,7 +21,8 @@ const mybatisNamespaces: MybatisNamespaces = {
 export async function activate(context: vscode.ExtensionContext) {
 	// Initialize mapperPath and mapperTag
 	mapperPath = await utils.getMapperPath(false);
-	mapperTag = await utils.getMapperTag();
+	mapperTag = utils.getMapperTag();
+	legacySupport = utils.getLegacySupport();
 	// Initialize mapperSpaces
 	const mapperSpaces = await parser.readMapperPath(mapperPath, mapperTag);
 	// Create collection for setting error markings in files
@@ -37,7 +39,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Set settings watcher up
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(async () => {
 		mapperPath = await utils.getMapperPath(true);
-		mapperTag = await utils.getMapperTag();
+		mapperTag = utils.getMapperTag();
+		legacySupport = utils.getLegacySupport();
 	}));
 
 	// Scan initial document on open
@@ -108,7 +111,7 @@ export function deactivate() {
 // Get code behind a specific refId, needs to be here to access our "globals"
 export function lookupCodeBehindRefId(namespace: string, refId: string): (vscode.DefinitionLink | undefined) {
 	// Get correct doc to work wiht
-	const docs = mybatisNamespaces.docs.filter((_doc: vscode.TextDocument, idx: number) => (mybatisNamespaces.names[idx] === namespace));
+	const docs = legacySupport ? mybatisNamespaces.docs : mybatisNamespaces.docs.filter((_doc: vscode.TextDocument, idx: number) => (mybatisNamespaces.names[idx] === namespace));
 	
 	const formattedRefId = ` id="${refId}"`;
 
