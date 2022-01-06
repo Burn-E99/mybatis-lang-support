@@ -316,14 +316,17 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 				let closeIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), openIdx + PAIR_ISSUES.OFFSET);
 
 				if (wordEndRegex.test(docText[openIdx + tag.length + PAIR_ISSUES.OFFSET])) {
-					if (closeIdx === -1) {
-						const nextTagIdx = docText.indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
-						// Get the closing idx, limited either by where the next tag is or the start of this tag
-						if (nextTagIdx === -1) {
-							closeIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
-						} else {
-							closeIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
-						}
+					const nextTagIdx = docText.indexOf('<', openIdx + PAIR_ISSUES.OFFSET);
+					let selfCloseIdx: number;
+					// Get the closing idx, limited either by where the next tag is or the start of this tag
+					if (nextTagIdx === -1) {
+						selfCloseIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, openIdx + PAIR_ISSUES.OFFSET);
+					} else {
+						selfCloseIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextTagIdx);
+					}
+
+					if (selfCloseIdx > openIdx && (selfCloseIdx < closeIdx || closeIdx === -1)) {
+						closeIdx = selfCloseIdx;
 					} else {
 						// tagCount will increment when an opening is found and decrement when a closing is found
 						// initialized to 1 to include the current openIdx
@@ -336,6 +339,14 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 							while (workingIdx !== -1 && tagCount !== 0) {
 								const nextOpenIdx = docText.indexOf(PAIR_ISSUES.OPEN(tag), workingIdx);
 								const nextCloseIdx = docText.indexOf(PAIR_ISSUES.NORM_CLOSE(tag), workingIdx + PAIR_ISSUES.OFFSET);
+								const nextNestedTagIdx = docText.indexOf('<', nextOpenIdx + PAIR_ISSUES.OFFSET);
+								let nextSelfCloseIdx: number;
+								// Get the closing idx, limited either by where the next tag is or the start of this tag
+								if (nextNestedTagIdx === -1) {
+									nextSelfCloseIdx = docText.indexOf(PAIR_ISSUES.SELF_CLOSE, nextOpenIdx + PAIR_ISSUES.OFFSET);
+								} else {
+									nextSelfCloseIdx = docText.lastIndexOf(PAIR_ISSUES.SELF_CLOSE, nextNestedTagIdx);
+								}
 								
 								// Determine which tag we are looking at
 								if (nextOpenIdx < nextCloseIdx && nextOpenIdx !== -1) {
@@ -346,6 +357,10 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 									// The next tag in the document is a closing tag, decrement
 									tagCount--;
 									workingIdx = nextCloseIdx + PAIR_ISSUES.OFFSET;
+								}
+
+								if (nextSelfCloseIdx > nextOpenIdx && (nextSelfCloseIdx < nextCloseIdx || nextCloseIdx === -1)) {
+									tagCount--;
 								}
 								
 								// update our closing idx

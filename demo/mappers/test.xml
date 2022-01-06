@@ -21,17 +21,32 @@
 	<include />
 	<include />
 	<include >
-		<!-- Interestingly, the last <include /> here does not have an error,
+		<!-- GH-18 Interestingly, the last <include /> here does not have an error,
 			and adding them inside here causes the normal opening to start erroring out as well -->
 		<include />
 		<include />
 		<include />
 		<include />
-		<tag></tag>
+		<include >
+			<include />
+			<include >
+				<include >
+					<include />
+					<include />
+					<include />
+					<include />
+					<include />
+				</include>
+			</include>
+		</include>
+		<include />
 	</include>
 	<include />
 	<include />
 	<include />
 	<include />
 	<include />
+	<include >
+		<include />
+	</include>
 </mapper>
