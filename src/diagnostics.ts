@@ -574,6 +574,15 @@ export class FixCarets implements vscode.CodeActionProvider {
 		// Get details on the current issue
 		const DIAG = CARET_ISSUES.filter(caretIssue => caretIssue.NAME === diagnostic.code)[0];
 
+		// Determine range that needs to be updated
+		const currentLine = doc.lineAt(range.start.line).text;
+		const issueStartIdx = currentLine.lastIndexOf(' ', currentLine[range.start.character] === ' ' ? range.start.character - 1 : range.start.character) + 1;
+		const issueEndIdx = currentLine.indexOf(' ', range.start.character);
+		const updateRange = new vscode.Range(
+			new vscode.Position(range.start.line, issueStartIdx),
+			new vscode.Position(range.start.line, issueEndIdx)
+		);
+
 		// Get details for the right fix
 		let codeToInsert = '';
 		let solutionText = '';
@@ -590,7 +599,7 @@ export class FixCarets implements vscode.CodeActionProvider {
 		fix.edit = new vscode.WorkspaceEdit();
 
 		// Do the fix
-		fix.edit.replace(doc.uri, range, codeToInsert);
+		fix.edit.replace(doc.uri, updateRange, codeToInsert);
 		return fix;
 	}
 }
@@ -620,12 +629,19 @@ export class FixMissingNamespaces implements vscode.CodeActionProvider {
 
 	private createSimpleCommandCodeAction(doc: vscode.TextDocument, range: vscode.Range): vscode.CodeAction {
 		const namespace = getNamespaceFromDoc(doc);
-		const replaceStr = `${namespace}.${doc.getText(range)}`;
+		const replaceStr = `${namespace}.`;
+
+		// Determine range that needs to be updated
+		const currentLine = doc.lineAt(range.start.line).text;
+		const issueStartIdx = currentLine.lastIndexOf('"', currentLine[range.start.character] === '"' ? range.start.character - 1 : range.start.character) + 1;
+		const updatePosition = new vscode.Position(range.start.line, issueStartIdx);
+		const updateRange = new vscode.Range(updatePosition, updatePosition);
+
 		// Set up the fix
 		const fix = new vscode.CodeAction(`Prepend ${namespace} to this refid`, vscode.CodeActionKind.QuickFix);
 		fix.edit = new vscode.WorkspaceEdit();
 		// Do the fix
-		fix.edit.replace(doc.uri, range, replaceStr);
+		fix.edit.replace(doc.uri, updateRange, replaceStr);
 		return fix;
 	}
 
@@ -634,12 +650,19 @@ export class FixMissingNamespaces implements vscode.CodeActionProvider {
 		const namespace = getNamespaceFromRefId(doc.getText(range));
 		if (namespace) {
 			// If we get a namespace, provide a fix
-			const replaceStr = `${namespace}.${doc.getText(range)}`;
+			const replaceStr = `${namespace}.`;
+
+			// Determine range that needs to be updated
+			const currentLine = doc.lineAt(range.start.line).text;
+			const issueStartIdx = currentLine.lastIndexOf('"', currentLine[range.start.character] === '"' ? range.start.character - 1 : range.start.character) + 1;
+			const updatePosition = new vscode.Position(range.start.line, issueStartIdx);
+			const updateRange = new vscode.Range(updatePosition, updatePosition);
+
 			// Set up the fix
 			const fix = new vscode.CodeAction(`Prepend ${namespace} to this refid`, vscode.CodeActionKind.QuickFix);
 			fix.edit = new vscode.WorkspaceEdit();
 			// Do the fix
-			fix.edit.replace(doc.uri, range, replaceStr);
+			fix.edit.replace(doc.uri, updateRange, replaceStr);
 			return fix;
 		}
 		return undefined;
