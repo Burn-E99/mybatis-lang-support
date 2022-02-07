@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as clone from 'clone';
 import * as utils from './utils';
-import { MybatisNamespace, MybatisNamespaces } from './types';
+import { MybatisNamespace, MybatisNamespaces, TagDetails } from './types';
 import { CARET_ISSUES, REFID_ISSUE, PAIR_ISSUES, NAMESPACE_ISSUE, DUPLICATE_ID_ISSUE } from './issues';
 import { getNamespaceFromDoc, getNamespaceFromRefId } from './extension';
 
@@ -36,7 +36,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		// Prefill legacySqlIds if we are in legacy mode
 		if (legacySupport) {
 			for (const mybatisNamespace of mybatisNamespaces.details) {
-				legacySqlIds.push(...new Set(mybatisNamespace.ids.sql));
+				legacySqlIds.push(...new Set(mybatisNamespace.ids.sql.map((tagDetails: TagDetails) => tagDetails.id)));
 			}
 			// Remove duplicates
 			legacySqlIds = [...new Set(legacySqlIds)];
@@ -134,7 +134,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 						detailsOffset = currentDetailsIdx + 1;
 					}
 
-					if (!mybatisNamespace.ids.sql.includes(reference)) {
+					if (!mybatisNamespace.ids.sql.map(tagDetails => tagDetails.id).includes(reference)) {
 						// Reference missing
 						issues.push({
 							code: REFID_ISSUE.MISSING_ID_NAME,
@@ -167,7 +167,7 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 					detailsOffset = currentDetailsIdx + 1;
 				}
 
-				if (mybatisNamespace.ids.sql.includes(refidText)) {
+				if (mybatisNamespace.ids.sql.map(tagDetails => tagDetails.id).includes(refidText)) {
 					// Reference exists, give warning
 					issues.push({
 						code: REFID_ISSUE.NO_NAMESPACE_NAME,
@@ -505,12 +505,24 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		// Set up arrays for duplicate ids, new Set is used to remove duplicates from within certain sections to prevent doubled up warnings/errors
 		const allIds = [...new Set(myDetails.ids.sql), ...new Set(myDetails.ids.insert), ...new Set(myDetails.ids.update), ...new Set(myDetails.ids.delete), ...new Set(myDetails.ids.select)];
 		const duplicateIds = {
-			all: [...new Set(allIds.filter((name: string, idx: number) => allIds.indexOf(name) !== idx))],
-			sql: [...new Set(myDetails.ids.sql.filter((name: string, idx: number) => myDetails.ids.sql.indexOf(name) !== idx))],
-			insert: [...new Set(myDetails.ids.insert.filter((name: string, idx: number) => myDetails.ids.insert.indexOf(name) !== idx))],
-			update: [...new Set(myDetails.ids.update.filter((name: string, idx: number) => myDetails.ids.update.indexOf(name) !== idx))],
-			delete: [...new Set(myDetails.ids.delete.filter((name: string, idx: number) => myDetails.ids.delete.indexOf(name) !== idx))],
-			select: [...new Set(myDetails.ids.select.filter((name: string, idx: number) => myDetails.ids.select.indexOf(name) !== idx))]
+			all: [...new Set(allIds.filter((tagDetailsFilter: TagDetails, idx: number) => allIds.findIndex(
+				tagDetailsFind => (tagDetailsFilter.id === tagDetailsFind.id && tagDetailsFilter.databaseId === tagDetailsFind.databaseId)
+			) !== idx))],
+			sql: [...new Set(myDetails.ids.sql.filter((tagDetailsFilter: TagDetails, idx: number) => myDetails.ids.sql.findIndex(
+				tagDetailsFind => (tagDetailsFilter.id === tagDetailsFind.id && tagDetailsFilter.databaseId === tagDetailsFind.databaseId)
+			) !== idx))],
+			insert: [...new Set(myDetails.ids.insert.filter((tagDetailsFilter: TagDetails, idx: number) => myDetails.ids.insert.findIndex(
+				tagDetailsFind => (tagDetailsFilter.id === tagDetailsFind.id && tagDetailsFilter.databaseId === tagDetailsFind.databaseId)
+			) !== idx))],
+			update: [...new Set(myDetails.ids.update.filter((tagDetailsFilter: TagDetails, idx: number) => myDetails.ids.update.findIndex(
+				tagDetailsFind => (tagDetailsFilter.id === tagDetailsFind.id && tagDetailsFilter.databaseId === tagDetailsFind.databaseId)
+			) !== idx))],
+			delete: [...new Set(myDetails.ids.delete.filter((tagDetailsFilter: TagDetails, idx: number) => myDetails.ids.delete.findIndex(
+				tagDetailsFind => (tagDetailsFilter.id === tagDetailsFind.id && tagDetailsFilter.databaseId === tagDetailsFind.databaseId)
+			) !== idx))],
+			select: [...new Set(myDetails.ids.select.filter((tagDetailsFilter: TagDetails, idx: number) => myDetails.ids.select.findIndex(
+				tagDetailsFind => (tagDetailsFilter.id === tagDetailsFind.id && tagDetailsFilter.databaseId === tagDetailsFind.databaseId)
+			) !== idx))]
 		};
 		
 		// Warn user of ids used between different types
@@ -519,10 +531,10 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 			if (docText.indexOf(duplicateIdStr) >= 0) {
 				issues.push({
 					code: DUPLICATE_ID_ISSUE.NAME,
-					message: DUPLICATE_ID_ISSUE.WARN(duplicateId),
+					message: DUPLICATE_ID_ISSUE.WARN(duplicateId.id),
 					range: new vscode.Range(
 						doc.positionAt(docText.indexOf(duplicateIdStr) + 5),
-						doc.positionAt(docText.indexOf(duplicateIdStr) + 5 + duplicateId.length)
+						doc.positionAt(docText.indexOf(duplicateIdStr) + 5 + duplicateId.id.length)
 					),
 					severity: vscode.DiagnosticSeverity.Warning
 				});
@@ -533,14 +545,14 @@ export const update = (doc: vscode.TextDocument, collection: vscode.DiagnosticCo
 		for (const type of Object.keys(myDetails.ids)) {
 			if (type === 'sql' || type === 'insert' || type === 'update' || type === 'delete' || type === 'select') {
 				for (const duplicateId of duplicateIds[type]) {
-					const duplicateIdStr = ` id="${duplicateId}"`;
+					const duplicateIdStr = ` id="${duplicateId.id}"`;
 					if (docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) >= 0) {
 						issues.push({
 							code: DUPLICATE_ID_ISSUE.NAME,
-							message: DUPLICATE_ID_ISSUE.DESC(duplicateId),
+							message: DUPLICATE_ID_ISSUE.DESC(duplicateId.id),
 							range: new vscode.Range(
 								doc.positionAt(docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5),
-								doc.positionAt(docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5 + duplicateId.length)
+								doc.positionAt(docText.indexOf(duplicateIdStr, docText.indexOf(PAIR_ISSUES.OPEN(type))) + 5 + duplicateId.id.length)
 							),
 							severity: vscode.DiagnosticSeverity.Error
 						});

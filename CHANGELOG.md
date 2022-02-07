@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "mybatis-lang-support" extension will be documented in this file.
 
+## [0.5.1] - 2022-01-07
+- Fixed && issue in the ampersand issue description ([gh-27](/../../issues/27))
+- Fixed quick fixes not getting placed in the right spot when using the Ctrl+. shortcut ([gh-24](/../../issues/24))
+- Fixed duplicate ids not respecting the databaseId attribute ([gh-26](/../../issues/26))
+
 ## [0.5.0] - 2022-01-06
 - Added the namespace name to the `refIdMissingNoNamespace` error ([gh-11](/../../issues/11))
 - Created legacy support setting to allow `<include refid=""/>` statements to be missing the namespace while referring to an id outside of the current namespace ([gh-21](/../../issues/21))

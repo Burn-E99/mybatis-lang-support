@@ -9,5 +9,6 @@
 	<sql id="TABLE_ONE_UV"><include refid="Tables.SCHEMA_UV"/>TABLE_ONE</sql>
 	<sql id="TABLE_TWO_AV"><include refid="Tables.SCHEMA_AV"/>TABLE_TWO</sql>
 	<sql id="TABLE_TWO_UV"><include refid="Tables.SCHEMA_UV"/>TABLE_TWO</sql>
-	<sql id="TABLE_SEVEN_AV"><include refid="Tables.SCHEMA_AV"/>TABLE_SEVEN</sql>
+	<sql id="TABLE_SEVEN_AV" databaseId="teradata"><include refid="Tables.SCHEMA_AV"/>TABLE_SEVEN_TD</sql>
+	<sql id="TABLE_SEVEN_AV" databaseId="oracle"><include refid="Tables.SCHEMA_AV"/>TABLE_SEVEN_OR</sql>
 </mapper>

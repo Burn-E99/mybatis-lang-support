@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { REFID_ISSUE } from './issues';
-import { MybatisNamespace } from './types';
+import { MybatisNamespace, TagDetails } from './types';
 
 // Parses the namespace and ids out of the given xml file
 const parseNamespaces = (doc: vscode.TextDocument, mapperTag: string): MybatisNamespace => {
@@ -57,10 +57,28 @@ const parseNamespaces = (doc: vscode.TextDocument, mapperTag: string): MybatisNa
 		const refNameEndIdx = mapperText.indexOf('"', refNameStartIdx);
 		const refName = mapperText.substring(refNameStartIdx, refNameEndIdx);
 
-		// Now get refType
+		// See if we have a databaseId on the tag
 		const refTypeStartIdx = mapperText.lastIndexOf('<', refNameStartIdx) + 1;
+		const refTagCloseIdx = mapperText.indexOf('>', refNameStartIdx);
+		let nextDatabaseIdIdx = mapperText.indexOf('databaseId="', refTypeStartIdx);
+		
+		// Get the databaseIdName
+		let databaseIdName = '';
+		if (nextDatabaseIdIdx !== -1 && nextDatabaseIdIdx > refTypeStartIdx && nextDatabaseIdIdx < refTagCloseIdx) {
+			// Shift nextDatabaseIdIdx by 12 to get after the "
+			nextDatabaseIdIdx += 12;
+			const databaseIdEndIdx = mapperText.indexOf('"', nextDatabaseIdIdx);
+			databaseIdName = mapperText.substring(nextDatabaseIdIdx, databaseIdEndIdx);
+		}
+
+		// Now get refType
 		const refTypeEndIdx = mapperText.indexOf(' ', refTypeStartIdx);
 		const refType = mapperText.substring(refTypeStartIdx, refTypeEndIdx).toLowerCase();
+
+		const tagDetails: TagDetails = {
+			id: refName,
+			databaseId: databaseIdName
+		};
 
 		// Save the refType if we care about it
 		switch (refType) {
@@ -69,7 +87,7 @@ const parseNamespaces = (doc: vscode.TextDocument, mapperTag: string): MybatisNa
 			case 'insert':
 			case 'update':
 			case 'delete':
-				names.ids[refType].push(refName);
+				names.ids[refType].push(tagDetails);
 				break;
 			default:
 				break;

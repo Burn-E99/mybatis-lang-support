@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { MybatisNamespaces } from './types';
+import { MybatisNamespaces, TagDetails } from './types';
 import * as completionActions from './completionActions';
 import * as diagnostics from './diagnostics';
 import * as namespaceActions from './namespaceActions';
@@ -49,14 +49,14 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 
 	// Update diagnostics when user opens/switches files
-	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((editor: vscode.TextEditor | undefined) => {
 		if (editor) {
 			diagnostics.update(editor.document, collection, mapperPath, mybatisNamespaces);
 		}
 	}));
 
 	// Update mybatisNamespaces and diagnostics when file is saved
-	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(async doc => {
+	context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(async (doc: vscode.TextDocument) => {
 		if (doc) {
 			// Updates namespaces if this is a file we care about
 			if (doc.uri.path.startsWith(mapperPath)) {
@@ -146,7 +146,7 @@ export function getNamespaceFromDoc(doc: vscode.TextDocument): string {
 export function getNamespaceFromRefId(refId: string): (string | undefined) {
 	// Loop through every doc to see if our refId exists in any of the mappers, returning the first one we find
 	for (const mybatisNamespace of mybatisNamespaces.details) {
-		if (mybatisNamespace.ids.sql.includes(refId)) {
+		if (mybatisNamespace.ids.sql.map((tagDetails: TagDetails) => tagDetails.id).includes(refId)) {
 			return mybatisNamespace.name;
 		}
 	}
@@ -167,7 +167,7 @@ export function getUniqueSqlIdsInNamespace(namesapce: string): Array<string> {
 	let workingIdx = 0;
 	while (mybatisNamespaces.names.indexOf(namesapce, workingIdx) !== -1) {
 		const currentIdx = mybatisNamespaces.names.indexOf(namesapce, workingIdx);
-		sqlIds.push(...mybatisNamespaces.details[currentIdx].ids.sql);
+		sqlIds.push(...mybatisNamespaces.details[currentIdx].ids.sql.map((tagDetails: TagDetails) => tagDetails.id));
 		workingIdx = currentIdx + 1;
 	}
 

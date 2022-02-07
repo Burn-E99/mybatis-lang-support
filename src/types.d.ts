@@ -1,14 +1,19 @@
 import type { TextDocument } from 'vscode';
 
+export type TagDetails = {
+	id: string,
+	databaseId: string
+}
+
 export type MybatisNamespace = {
 	path: string,
 	name: string,
 	ids: {
-		sql: Array<string>,
-		select: Array<string>,
-		insert: Array<string>,
-		update: Array<string>,
-		delete: Array<string>
+		sql: Array<TagDetails>,
+		select: Array<TagDetails>,
+		insert: Array<TagDetails>,
+		update: Array<TagDetails>,
+		delete: Array<TagDetails>
 	}
 }
 
