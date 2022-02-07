@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to the "mybatis-lang-support" extension will be documented in this file.
 
-## [0.5.1] - 2022-01-07
+## [0.5.1] - 2022-02-07
 - Fixed && issue in the ampersand issue description ([gh-27](/../../issues/27))
 - Fixed quick fixes not getting placed in the right spot when using the Ctrl+. shortcut ([gh-24](/../../issues/24))
 - Fixed duplicate ids not respecting the databaseId attribute ([gh-26](/../../issues/26))
